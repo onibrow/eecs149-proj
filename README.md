@@ -15,6 +15,8 @@ Specifically, we will use the three actuation points on the Has🅱️ro Bop It!
 
 [nRF52 Product Spec](https://infocenter.nordicsemi.com/pdf/nRF52832_PS_v1.1.pdf)
 
+* I2S begins page 445
+
 [SparkFun's Intro to SPI](https://learn.sparkfun.com/tutorials/serial-peripheral-interface-spi/all)
 
 [RPi WS2801 SPI Interface](https://tutorials-raspberrypi.com/how-to-control-a-raspberry-pi-ws2801-rgb-led-strip/)
