@@ -17,6 +17,8 @@ Specifically, we will use the three actuation points on the Has🅱️ro Bop It!
 
 * I2S begins page 445
 
+[nRF SDK I2S](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.3.0%2Findex.html)
+
 [SparkFun's Intro to SPI](https://learn.sparkfun.com/tutorials/serial-peripheral-interface-spi/all)
 
 [RPi WS2801 SPI Interface](https://tutorials-raspberrypi.com/how-to-control-a-raspberry-pi-ws2801-rgb-led-strip/)
