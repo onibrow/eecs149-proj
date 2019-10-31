@@ -13,12 +13,12 @@ Specifically, we will use the three actuation points on the Has🅱️ro Bop It!
 
 ## Useful Links:
 
-[nRF52 Product Spec](https://infocenter.nordicsemi.com/pdf/nRF52832_PS_v1.1.pdf)
+[nRF52 Product Spec](https://infocenter.nordicsemi.com/pdf/nRF52832_PS_v1.4.pdf)
 
 * I2S begins page 445
 * [Loopback example for sanity check](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.2.0%2Fi2s_example_loopback.html&cp=4_0_0_4_5_14)
-
-[nRF SDK I2S](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.3.0%2Findex.html)
+* [nRF SDK I2S](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.3.0%2Findex.html)
+* [MCP4725 DAC Driver](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.2.0%2Fi2s_example_loopback.html&cp=4_0_0_4_5_14)
 
 [SparkFun's Intro to SPI](https://learn.sparkfun.com/tutorials/serial-peripheral-interface-spi/all)
 
