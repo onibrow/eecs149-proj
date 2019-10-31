@@ -24,6 +24,8 @@ Specifically, we will use the three actuation points on the Has🅱️ro Bop It!
 
 [RPi WS2801 SPI Interface](https://tutorials-raspberrypi.com/how-to-control-a-raspberry-pi-ws2801-rgb-led-strip/)
 
+[WS2801 Datasheet](https://cdn-shop.adafruit.com/datasheets/WS2801.pdf)
+
 [Adafruit WS2801 RPi SPI Library](https://github.com/adafruit/Adafruit_CircuitPython_WS2801)
 
 [Audio Python Syncing](https://github.com/scottlawsonbc/audio-reactive-led-strip)
