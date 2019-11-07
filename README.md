@@ -14,7 +14,7 @@ Specifically, we will use the three actuation points on the Has🅱️ro Bop It!
 
 ### 11/7
 
-MP3 files are compressed so they need to be decoded to be played on a DAC -> this isn't particularly ideal so we will switch over to WAV files which are uncompressed. From Audacity, we can see that we can save them in various formats (16 bit or 24 bit PCM), which will allow us to basically read in binary and shove them into either the I2S registers or over I2C.
+MP3 files are compressed so they need to be decoded to be played on a DAC -> this isn't particularly ideal so we will switch over to WAV files which are uncompressed. From Audacity, we can see that we can save them in various formats (16 bit or 24 bit PCM), which will allow us to basically read in binary and shove them into either the I2S registers or over I2C. [Here](https://www.sparkfun.com/tutorials/160)'s a tutorial on how to play WAV files and goes over their limitations. 
 
 ## Useful Links:
 
