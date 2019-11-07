@@ -10,6 +10,11 @@ Rhythm games have always been popular - we have Dance Dance Revolution, Tap Tap 
 
 Specifically, we will use the three actuation points on the Has🅱️ro Bop It! (Twist-It, Pull-It, and Bop-It) as inputs to our game that displays its oncoming beats not on a screen but on 3 LED strips. There will be indicators giving the user feedback on whether or not they were able to successfully hit each note, and will total up the score at the very end for high octane, competitive gameplay.
 
+## Meeting Notes
+
+### 11/7
+
+MP3 files are compressed so they need to be decoded to be played on a DAC -> this isn't particularly ideal so we will switch over to WAV files which are uncompressed. From Audacity, we can see that we can save them in various formats (16 bit or 24 bit PCM), which will allow us to basically read in binary and shove them into either the I2S registers or over I2C.
 
 ## Useful Links:
 
