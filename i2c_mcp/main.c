@@ -21,7 +21,6 @@
 #include "buckler.h"
 #include "mcp4725.h"
 
-
 // I2C manager
 // NRF_TWI_MNGR_DEF(twi_mngr_instance, 5, 0);
 
@@ -37,6 +36,10 @@ int main(void) {
   // initialize MCP4725 driver
   const mcp4725_pins_config_t mcp_pins = {BUCKLER_SENSORS_SCL, BUCKLER_SENSORS_SDA};
   mcp4725_setup(&mcp_pins);
+  printf("SDA Pin %d\n", mcp_pins.sda_pin);
+  printf("SCL Pin %d\n", mcp_pins.scl_pin);
+  printf("MCP Busy: %d\n", mcp4725_is_busy());
+
   printf("MCP4725 Initialized!\n");
 
   // loop forever

@@ -58,10 +58,10 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
-#define LED_OK      BSP_BOARD_LED_0
-#define LED_ERROR   BSP_BOARD_LED_1
+// #define LED_OK      BSP_BOARD_LED_0
+// #define LED_ERROR   BSP_BOARD_LED_1
 
-#define I2S_DATA_BLOCK_WORDS    512
+#define I2S_DATA_BLOCK_WORDS    128
 static uint32_t m_buffer_rx[2][I2S_DATA_BLOCK_WORDS];
 static uint32_t m_buffer_tx[2][I2S_DATA_BLOCK_WORDS];
 
@@ -69,7 +69,7 @@ static uint32_t m_buffer_tx[2][I2S_DATA_BLOCK_WORDS];
 // (in milliseconds).
 #define PAUSE_TIME          500
 // Number of blocks of data to be contained in each transfer.
-#define BLOCKS_TO_TRANSFER  20
+#define BLOCKS_TO_TRANSFER  256
 
 static uint8_t volatile m_blocks_transferred     = 0;
 static uint8_t          m_zero_samples_to_ignore = 0;
@@ -163,16 +163,16 @@ static void check_rx_data(uint32_t const * p_block)
         m_error_encountered = !check_samples(p_block);
     }
 
-    if (m_error_encountered)
-    {
-        bsp_board_led_off(LED_OK);
-        bsp_board_led_invert(LED_ERROR);
-    }
-    else
-    {
-        bsp_board_led_off(LED_ERROR);
-        bsp_board_led_invert(LED_OK);
-    }
+    // if (m_error_encountered)
+    // {
+    //     bsp_board_led_off(LED_OK);
+    //     bsp_board_led_invert(LED_ERROR);
+    // }
+    // else
+    // {
+    //     bsp_board_led_off(LED_ERROR);
+    //     bsp_board_led_invert(LED_OK);
+    // }
 }
 
 
@@ -223,25 +223,25 @@ static void data_handler(nrf_drv_i2s_buffers_t const * p_released,
 }
 
 
-void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
-{
-    bsp_board_leds_on();
-    app_error_save_and_stop(id, pc, info);
-}
+// void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
+// {
+//     // bsp_board_leds_on();
+//     app_error_save_and_stop(id, pc, info);
+// }
 
 
 int main(void)
 {
     uint32_t err_code = NRF_SUCCESS;
 
-    bsp_board_init(BSP_INIT_LEDS);
+    // bsp_board_init(BSP_INIT_LEDS);
 
     err_code = NRF_LOG_INIT(NULL);
     APP_ERROR_CHECK(err_code);
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
-    NRF_LOG_INFO("I2S loopback example started.");
+    printf("I2S loopback example started.");
 
     nrf_drv_i2s_config_t config = NRF_DRV_I2S_DEFAULT_CONFIG;
     // In Master mode the MCK frequency and the MCK/LRCK ratio should be
@@ -249,13 +249,16 @@ int main(void)
     // is equivalent to the LRCK frequency).
     // For the following settings we'll get the LRCK frequency equal to
     // 15873 Hz (the closest one to 16 kHz that is possible to achieve).
-    config.sdin_pin  = I2S_SDIN_PIN;
-    config.sdout_pin = I2S_SDOUT_PIN;
-    config.mck_setup = NRF_I2S_MCK_32MDIV21;
-    config.ratio     = NRF_I2S_RATIO_96X;
-    config.channels  = NRF_I2S_CHANNELS_STEREO;
+    // config.sdin_pin  = I2S_SDIN_PIN;
+    // config.sdout_pin = I2S_SDOUT_PIN;
+    // config.mck_setup = NRF_I2S_MCK_32MDIV21;
+    // config.ratio     = NRF_I2S_RATIO_96X;
+    // config.channels  = NRF_I2S_CHANNELS_STEREO;
     err_code = nrf_drv_i2s_init(&config, data_handler);
     APP_ERROR_CHECK(err_code);
+
+    printf("SDIN Pin %d\n", config.sdin_pin);
+    printf("SDOUT Pin %d\n", config.sdout_pin);
 
     for (;;)
     {
@@ -295,7 +298,7 @@ int main(void)
 
         NRF_LOG_FLUSH();
 
-        bsp_board_leds_off();
+        // bsp_board_leds_off();
         nrf_delay_ms(PAUSE_TIME);
     }
 }
