@@ -62,10 +62,10 @@
 #define FILE_NAME   "NORDIC.TXT"
 #define TEST_STRING "SD card example."
 
-#define SDC_SCK_PIN     ARDUINO_13_PIN  ///< SDC serial clock (SCK) pin.
-#define SDC_MOSI_PIN    ARDUINO_11_PIN  ///< SDC serial data in (DI) pin.
-#define SDC_MISO_PIN    ARDUINO_12_PIN  ///< SDC serial data out (DO) pin.
-#define SDC_CS_PIN      ARDUINO_10_PIN  ///< SDC chip select (CS) pin.
+#define SDC_SCK_PIN     P0_13  ///< SDC serial clock (SCK) pin.
+#define SDC_MOSI_PIN    P0_11  ///< SDC serial data in (DI) pin.
+#define SDC_MISO_PIN    P0_12  ///< SDC serial data out (DO) pin.
+#define SDC_CS_PIN      P0_14  ///< SDC chip select (CS) pin.
 
 /**
  * @brief  SDC block device definition

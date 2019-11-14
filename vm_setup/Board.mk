@@ -91,6 +91,7 @@ BOARD_SOURCES += \
 	simple_logger.c\
 	mcp4725.c\
 	nrfx_i2s.c\
+  diskio_blkdev.c\
 
 ifneq ($(SOFTDEVICE_MODEL),blank)
 BOARD_SOURCES += \
