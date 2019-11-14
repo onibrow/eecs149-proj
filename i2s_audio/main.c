@@ -69,7 +69,7 @@ static uint32_t m_buffer_tx[2][I2S_DATA_BLOCK_WORDS];
 // (in milliseconds).
 #define PAUSE_TIME          500
 // Number of blocks of data to be contained in each transfer.
-#define BLOCKS_TO_TRANSFER  256
+#define BLOCKS_TO_TRANSFER  128
 
 static uint8_t volatile m_blocks_transferred     = 0;
 static uint8_t          m_zero_samples_to_ignore = 0;
@@ -135,18 +135,17 @@ static bool check_samples(uint32_t const * p_block)
         {
             m_zero_samples_to_ignore = 0;
 
-            uint16_t expected_sample_l = m_sample_value_expected - 1;
-            uint16_t expected_sample_r = m_sample_value_expected + 1;
+            // uint16_t expected_sample_l = m_sample_value_expected - 1;
+            // uint16_t expected_sample_r = m_sample_value_expected + 1;
             ++m_sample_value_expected;
 
-            if (actual_sample_l != expected_sample_l ||
-                actual_sample_r != expected_sample_r)
-            {
-                NRF_LOG_INFO("%3u: %04x/%04x, expected: %04x/%04x (i: %u)",
-                    m_blocks_transferred, actual_sample_l, actual_sample_r,
-                    expected_sample_l, expected_sample_r, i);
-                return false;
-            }
+            // if (actual_sample_l != expected_sample_l ||
+            //     actual_sample_r != expected_sample_r)
+            // {
+                NRF_LOG_INFO("Block %3u: %04x/%04x (i: %u)",
+                    m_blocks_transferred, actual_sample_l, actual_sample_r,i);
+            //     return false;
+            // }
         }
     }
     NRF_LOG_INFO("%3u: OK", m_blocks_transferred);
@@ -260,7 +259,7 @@ int main(void)
     printf("SDIN Pin %d\n", config.sdin_pin);
     printf("SDOUT Pin %d\n", config.sdout_pin);
 
-    for (;;)
+    for (int i = 0; i < 5; i++)
     {
         m_blocks_transferred = 0;
         mp_block_to_fill  = NULL;

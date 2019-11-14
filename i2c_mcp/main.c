@@ -38,9 +38,8 @@ int main(void) {
   mcp4725_setup(&mcp_pins);
   printf("SDA Pin %d\n", mcp_pins.sda_pin);
   printf("SCL Pin %d\n", mcp_pins.scl_pin);
-  printf("MCP Busy: %d\n", mcp4725_is_busy());
 
-  printf("MCP4725 Initialized!\n");
+  printf("MCP4725 Initialized with address 0x%x!\n", MCP4725_BASE_ADDRESS);
 
   // loop forever
   while (1) {

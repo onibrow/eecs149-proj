@@ -126,3 +126,4 @@
 #define TWI_INSTANCE_ID_USED 0
 #define I2S_ENABLED 1
 #define NRFX_I2S_ENABLED 1
+#define MCP4725_BASE_ADDRESS    0x62        //!< MCP4725 base address
