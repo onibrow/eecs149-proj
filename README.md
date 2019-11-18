@@ -25,6 +25,8 @@ MP3 files are compressed so they need to be decoded to be played on a DAC -> thi
 * [nRF SDK I2S](https://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v15.3.0/group__nrfx__i2s.html)
 * [MCP4725 DAC Driver](https://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v15.3.0/group__mcp4725.html)
 
+[Nordic SD Card](https://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v15.3.0/app_sdcard_example.html)
+
 [SparkFun's Intro to SPI](https://learn.sparkfun.com/tutorials/serial-peripheral-interface-spi/all)
 
 [RPi WS2801 SPI Interface](https://tutorials-raspberrypi.com/how-to-control-a-raspberry-pi-ws2801-rgb-led-strip/)
