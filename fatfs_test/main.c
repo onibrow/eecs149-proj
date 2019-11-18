@@ -62,10 +62,10 @@
 #define FILE_NAME   "NORDIC.TXT"
 #define TEST_STRING "SD card example."
 
-#define SDC_SCK_PIN     P0_13  ///< SDC serial clock (SCK) pin.
-#define SDC_MOSI_PIN    P0_11  ///< SDC serial data in (DI) pin.
-#define SDC_MISO_PIN    P0_12  ///< SDC serial data out (DO) pin.
-#define SDC_CS_PIN      P0_14  ///< SDC chip select (CS) pin.
+#define SDC_SCK_PIN     BUCKLER_SD_SCLK  ///< SDC serial clock (SCK) pin.
+#define SDC_MOSI_PIN    BUCKLER_SD_MOSI  ///< SDC serial data in (DI) pin.
+#define SDC_MISO_PIN    BUCKLER_SD_MISO  ///< SDC serial data out (DO) pin.
+#define SDC_CS_PIN      BUCKLER_SD_CS  ///< SDC chip select (CS) pin.
 
 /**
  * @brief  SDC block device definition
@@ -183,13 +183,14 @@ static void fatfs_example()
  */
 int main(void)
 {
-    bsp_board_init(BSP_INIT_LEDS);
+    // bsp_board_init(BSP_INIT_LEDS);
 
     APP_ERROR_CHECK(NRF_LOG_INIT(NULL));
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
     NRF_LOG_INFO("FATFS example started.");
-
+    nrf_gpio_cfg_output(BUCKLER_SD_ENABLE);
+    nrf_gpio_cfg_output(BUCKLER_SD_ENABLE);
     fatfs_example();
 
     while (true)
