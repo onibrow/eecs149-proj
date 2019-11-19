@@ -29,6 +29,8 @@ bool DONE_PLAYING = false;
 ret_code_t error_code;
 uint16_t score = 0;
 
+bool a = true; //for demo
+
 APP_TIMER_DEF(BPM240); // 4 Hz
 
 void SWI1_EGU1_IRQHandler(void) {
@@ -37,6 +39,7 @@ void SWI1_EGU1_IRQHandler(void) {
     printf("\n*********** GAME ON ***********\n");
       display_write("GAME ON", DISPLAY_LINE_0);
   	  display_write("(*_*)", DISPLAY_LINE_1);
+  	  nrf_delay_ms(2000);//for demo
 }
 
 void software_interrupt_init(void) {
@@ -66,13 +69,15 @@ static void bpm_timer_tick_callback(void * p_context)
     // read_bopit_input();
     // compare the value with song (in buffer -> by how much?)
     //if (song_buf[i] == read_input) {
-	if (true) {
+	if (a) {
 		display_write("GOOD", DISPLAY_LINE_0);
 		display_write("+1", DISPLAY_LINE_1);
 		score += 1;
+		a = false;
 	} else {
 		display_write("MISS T_T", DISPLAY_LINE_0);
-		display_write("", DISPLAY_LINE_1);
+		display_write("...", DISPLAY_LINE_1);
+		a = true;
 	}
 }
 
@@ -133,7 +138,7 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
   display_init(&spi_instance);
 
-  display_write("BOB IT REV.", DISPLAY_LINE_0);
+  display_write("BOB IT REV.DEMO", DISPLAY_LINE_0);
   display_write("PLAY? ->", DISPLAY_LINE_1);
   printf("Display initialized!\n");
   // ----------------------------------------------------------------
@@ -183,7 +188,8 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
 
 
-      error_code = app_timer_start(BPM240, APP_TIMER_TICKS(250), NULL); //&timeout
+  		// learn how tick works 
+      error_code = app_timer_start(BPM240, APP_TIMER_TICKS(250), NULL); //APP_TIMER_TICKS(250), &timeout
       APP_ERROR_CHECK(error_code);
 
       gameon_button = false;
@@ -197,12 +203,15 @@ int main(void) {
       snprintf(test, 16, "%d", i);
       display_write(test, DISPLAY_LINE_1);
       */printf("timer: %d\n", app_timer_cnt_get());
+    	if (app_timer_cnt_get() >= 100000) {
+    		DONE_PLAYING = true;
+    	}
 
     }
 
 
     // somewhere in the loop will call a function checking if the song is done 
-    //nrf_delay_ms(250); // should implement the timer 
+    nrf_delay_ms(250); // should implement the timer 
   }
 
 
