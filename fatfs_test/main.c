@@ -65,7 +65,7 @@
 #define SDC_SCK_PIN     BUCKLER_SD_SCLK  ///< SDC serial clock (SCK) pin.
 #define SDC_MOSI_PIN    BUCKLER_SD_MOSI  ///< SDC serial data in (DI) pin.
 #define SDC_MISO_PIN    BUCKLER_SD_MISO  ///< SDC serial data out (DO) pin.
-#define SDC_CS_PIN      BUCKLER_SD_CS  ///< SDC chip select (CS) pin.
+#define SDC_CS_PIN      BUCKLER_SD_CS    ///< SDC chip select (CS) pin.
 
 /**
  * @brief  SDC block device definition

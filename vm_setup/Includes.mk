@@ -11,14 +11,14 @@ REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/drivers/*/))
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/*/))
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_ble/*/))
-REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
+# REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/ntpclient/source/c/*/))
 REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/drivers/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_ble/*/))
-REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
+# REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/ntpclient/source/c/*/))
 
@@ -179,6 +179,9 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/
     #SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/mbedtls/nrf_crypto/config/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/fatfs/port/
+    SDK_HEADER_PATHS += $(SDK_ROOT)external/fatfs/src/
+    SDK_HEADER_PATHS += $(SDK_ROOT)external/protothreads/
+    SDK_HEADER_PATHS += $(SDK_ROOT)external/protothreads/pt-1.4/
 
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/
     SDK_SOURCE_PATHS += $(SDK_ROOT)modules/nrfx/
@@ -267,6 +270,9 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
     #SDK_SOURCE_PATHS += $(SDK_ROOT)external/mbedtls/library/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/fatfs/port/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)external/fatfs/src/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)external/protothreads/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)external/protothreads/pt-1.4/
 
     ifdef SERIALIZATION_MODE
       SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/serialization/*/)

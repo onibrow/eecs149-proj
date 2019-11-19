@@ -49,7 +49,6 @@ BOARD_SOURCES += \
 	ff.c\
 	hardfault_handler_gcc.c\
 	hardfault_implementation.c\
-	mmc_nrf.c\
 	nrf_assert.c\
 	nrf_atomic.c\
 	nrf_balloc.c\
@@ -88,11 +87,15 @@ BOARD_SOURCES += \
 	nrfx_twim.c\
 	nrfx_uart.c\
 	nrfx_uarte.c\
-	simple_logger.c\
 	mcp4725.c\
 	nrfx_i2s.c\
 	diskio_blkdev.c\
 	nrf_block_dev_sdc.c\
+	app_sdcard.c\
+	nrf_pt.c\
+	pt.c\
+	#simple_logger.c\
+	#mmc_nrf.c\
 
 ifneq ($(SOFTDEVICE_MODEL),blank)
 BOARD_SOURCES += \

@@ -49,6 +49,7 @@ int main(void) {
   nrf_gpio_cfg_input(BUCKLER_SD_MISO, NRF_GPIO_PIN_NOPULL);
 
   nrf_gpio_pin_set(BUCKLER_SD_ENABLE);
+  nrf_gpio_pin_set(BUCKLER_SD_ENABLE);
   nrf_gpio_pin_set(BUCKLER_SD_CS);
 
   // Initialize SD card

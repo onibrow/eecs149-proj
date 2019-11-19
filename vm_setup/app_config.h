@@ -127,3 +127,7 @@
 #define I2S_ENABLED 1
 #define NRFX_I2S_ENABLED 1
 #define MCP4725_BASE_ADDRESS    0x62        //!< MCP4725 base address
+
+#define NRFX_SPI0_ENABLED 1
+#define NRFX_SPI_INSTANCE 1
+#define NRFX_SPI_INSTANCE_ID 1
