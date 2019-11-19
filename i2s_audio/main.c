@@ -100,9 +100,17 @@ static void prepare_tx_data(uint32_t * p_block)
     uint16_t i;
     for (i = 0; i < I2S_DATA_BLOCK_WORDS; ++i)
     {
-        uint16_t sample_l = m_sample_value_to_send - 1;
-        uint16_t sample_r = m_sample_value_to_send + 1;
-        ++m_sample_value_to_send;
+    	uint16_t sample_l, sample_r;
+    	if (i < I2S_DATA_BLOCK_WORDS / 2) {
+    		sample_l = 0xFFFF;
+    		sample_r = 0xFFFF;
+    	} else {
+    		sample_l = 0x0000;
+    		sample_r = 0x0000;
+    	}
+        // uint16_t sample_l = m_sample_value_to_send - 1;
+        // uint16_t sample_r = m_sample_value_to_send + 1;
+        // ++m_sample_value_to_send;
 
         uint32_t * p_word = &p_block[i];
         ((uint16_t *)p_word)[0] = sample_l;
@@ -137,15 +145,24 @@ static bool check_samples(uint32_t const * p_block)
 
             // uint16_t expected_sample_l = m_sample_value_expected - 1;
             // uint16_t expected_sample_r = m_sample_value_expected + 1;
-            ++m_sample_value_expected;
+            uint16_t expected_sample_l, expected_sample_r;
+	    	if (i < I2S_DATA_BLOCK_WORDS / 2 + 1 | i < 1) {
+	    		expected_sample_l = 0xFFFF;
+	    		expected_sample_r = 0xFFFF;
+	    	} else {
+	    		expected_sample_l = 0x0000;
+	    		expected_sample_r = 0x0000;
+	    	}
+            // ++m_sample_value_expected;
 
-            // if (actual_sample_l != expected_sample_l ||
-            //     actual_sample_r != expected_sample_r)
-            // {
-                NRF_LOG_INFO("Block %3u: %04x/%04x (i: %u)",
-                    m_blocks_transferred, actual_sample_l, actual_sample_r,i);
-            //     return false;
-            // }
+            if (actual_sample_l != expected_sample_l ||
+                actual_sample_r != expected_sample_r)
+            {
+                NRF_LOG_INFO("Block %3u: %04x/%04x, expected: %04x/%04x (i: %u)",
+                    m_blocks_transferred, actual_sample_l, actual_sample_r,
+                    expected_sample_l, expected_sample_r, i);
+                return false;
+            }
         }
     }
     NRF_LOG_INFO("%3u: OK", m_blocks_transferred);
@@ -259,47 +276,39 @@ int main(void)
     printf("SDIN Pin %d\n", config.sdin_pin);
     printf("SDOUT Pin %d\n", config.sdout_pin);
 
-    for (int i = 0; i < 5; i++)
+     m_blocks_transferred = 0;
+    mp_block_to_fill  = NULL;
+    mp_block_to_check = NULL;
+
+    prepare_tx_data(m_buffer_tx[0]);
+
+    nrf_drv_i2s_buffers_t const initial_buffers = {
+        .p_tx_buffer = m_buffer_tx[0],
+        .p_rx_buffer = m_buffer_rx[0],
+    };
+    err_code = nrf_drv_i2s_start(&initial_buffers, I2S_DATA_BLOCK_WORDS, 0);
+    APP_ERROR_CHECK(err_code);
+
+    for (;;)
     {
-        m_blocks_transferred = 0;
-        mp_block_to_fill  = NULL;
-        mp_block_to_check = NULL;
-
-        prepare_tx_data(m_buffer_tx[0]);
-
-        nrf_drv_i2s_buffers_t const initial_buffers = {
-            .p_tx_buffer = m_buffer_tx[0],
-            .p_rx_buffer = m_buffer_rx[0],
-        };
-        err_code = nrf_drv_i2s_start(&initial_buffers, I2S_DATA_BLOCK_WORDS, 0);
-        APP_ERROR_CHECK(err_code);
-
-        do {
-            // Wait for an event.
-            __WFE();
-            // Clear the event register.
-            __SEV();
-            __WFE();
-
-            if (mp_block_to_fill)
-            {
-                prepare_tx_data(mp_block_to_fill);
-                mp_block_to_fill = NULL;
-            }
-            if (mp_block_to_check)
-            {
-                check_rx_data(mp_block_to_check);
-                mp_block_to_check = NULL;
-            }
-        } while (m_blocks_transferred < BLOCKS_TO_TRANSFER);
-
-        nrf_drv_i2s_stop();
+        if (mp_block_to_fill)
+        {
+            prepare_tx_data(mp_block_to_fill);
+            mp_block_to_fill = NULL;
+        }
+        if (mp_block_to_check)
+        {
+            check_rx_data(mp_block_to_check);
+            mp_block_to_check = NULL;
+        }
+        // while (m_blocks_transferred < BLOCKS_TO_TRANSFER);
 
         NRF_LOG_FLUSH();
 
         // bsp_board_leds_off();
-        nrf_delay_ms(PAUSE_TIME);
+        // nrf_delay_ms(PAUSE_TIME);
     }
+    nrf_drv_i2s_stop();
 }
 
 /** @} */
