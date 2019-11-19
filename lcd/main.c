@@ -138,7 +138,7 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
   display_init(&spi_instance);
 
-  display_write("BOB IT REV.DEMO", DISPLAY_LINE_0);
+  display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);
   display_write("PLAY? ->", DISPLAY_LINE_1);
   printf("Display initialized!\n");
   // ----------------------------------------------------------------
