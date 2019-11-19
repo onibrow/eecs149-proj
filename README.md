@@ -10,6 +10,17 @@ Rhythm games have always been popular - we have Dance Dance Revolution, Tap Tap 
 
 Specifically, we will use the three actuation points on the Has🅱️ro Bop It! (Twist-It, Pull-It, and Bop-It) as inputs to our game that displays its oncoming beats not on a screen but on 3 LED strips. There will be indicators giving the user feedback on whether or not they were able to successfully hit each note, and will total up the score at the very end for high octane, competitive gameplay.
 
+## Getting out of dependency hell
+
+1. Try to compile. What library is it missing? ex: `blah.h`
+1. Does the file exist in the sdk? Find it by going to the sdk folder `~/buckler/software/nrf52x-base/sdk/nrf5_sdk_15.3.0` and running `find . -name 'blah.*'`. Take note of the directory the header and C file are located in.
+1. Edit `eecs149-proj/vm_setup/Includes.mk`. You will need to add **2 Lines**:
+  1. Near line 180, the `SDK_HEADER_PATHS` should end and become `SDK_SOURCE_PATHS`. Add a new line at the end of the header paths and add the directory you found in step 2 for the header file. You might want to check if that directory is being checked already.
+  1. Near line 270, the `SDK_SOURCE_PATHS` should end and is followed by `ifdef SERIALIZATiON_MODE`. Add a new line at the end of the source paths and add the directory you found in step 2 for the C file. Similarly, you might want to check if that directory is already being sourced
+1. Edit `eecs149-proj/vm_setup/Board.mk`. You will need to add **1 Line**:
+  1. Near line 95, the list of `BOARD_SOURCES` should end. Add the C file at the end of the list (make sure to terminate with a `\`).
+1. Repeat the above steps for all dependencies.
+
 ## Meeting Notes
 
 ### 11/7
