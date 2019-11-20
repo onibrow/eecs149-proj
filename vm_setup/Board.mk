@@ -46,7 +46,6 @@ BOARD_SOURCES += \
 	app_uart.c\
 	app_util_platform.c\
 	before_startup.c\
-	ff.c\
 	hardfault_handler_gcc.c\
 	hardfault_implementation.c\
 	nrf_assert.c\
@@ -89,13 +88,12 @@ BOARD_SOURCES += \
 	nrfx_uarte.c\
 	mcp4725.c\
 	nrfx_i2s.c\
-	diskio_blkdev.c\
-	nrf_block_dev_sdc.c\
-	app_sdcard.c\
-	nrf_pt.c\
-	pt.c\
-	#simple_logger.c\
-	#mmc_nrf.c\
+	simple_logger.c\
+	mmc_nrf.c\
+	ff.c\
+	#diskio_blkdev.c\
+	#nrf_block_dev_sdc.c\
+	#app_sdcard.c\
 
 ifneq ($(SOFTDEVICE_MODEL),blank)
 BOARD_SOURCES += \

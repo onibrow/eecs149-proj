@@ -128,6 +128,22 @@
 #define NRFX_I2S_ENABLED 1
 #define MCP4725_BASE_ADDRESS    0x62        //!< MCP4725 base address
 
-#define NRFX_SPI0_ENABLED 1
 #define NRFX_SPI_INSTANCE 1
 #define NRFX_SPI_INSTANCE_ID 1
+#define NRF_DRV_SPI_INSTANCE 2
+
+// lots of redundancy, solves not-finding-instance in nrf_drive_spi error 
+
+#define NRFX_SPIM_ENABLED 1
+#define NRFX_SPIM0_ENABLED 1
+#define NRFX_SPI_ENABLED 1
+#define NRFX_SPI0_ENABLED 1
+#define SPI_ENABLED 1
+#define SPI0_ENABLED 1
+
+#define NRFX_SPIM_ENABLED 1
+#define NRFX_SPIM2_ENABLED 1
+#define NRFX_SPI_ENABLED 1
+#define NRFX_SPI2_ENABLED 1
+#define SPI_ENABLED 1
+#define SPI2_ENABLED 1
