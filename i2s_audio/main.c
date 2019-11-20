@@ -257,7 +257,7 @@ int main(void)
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
-    printf("I2S loopback example started.");
+    printf("I2S loopback example started.\n");
 
     nrf_drv_i2s_config_t config = NRF_DRV_I2S_DEFAULT_CONFIG;
     // In Master mode the MCK frequency and the MCK/LRCK ratio should be
@@ -270,11 +270,17 @@ int main(void)
     // config.mck_setup = NRF_I2S_MCK_32MDIV21;
     // config.ratio     = NRF_I2S_RATIO_96X;
     // config.channels  = NRF_I2S_CHANNELS_STEREO;
+    config.mck_setup = NRF_I2S_MCK_32MDIV125;
+    config.ratio = NRF_I2S_RATIO_32X;
+    // config.channels = NRF_I2S_CHANNELS_STEREO;
+    // config.format = NRF_I2S_FORMAT_ALIGNED;
     err_code = nrf_drv_i2s_init(&config, data_handler);
     APP_ERROR_CHECK(err_code);
 
-    printf("SDIN Pin %d\n", config.sdin_pin);
+    printf("SDIN Pin  %d\n", config.sdin_pin);
     printf("SDOUT Pin %d\n", config.sdout_pin);
+    printf("MCK Setup %d\n", config.mck_setup);
+    printf("Ratio     %d\n", config.ratio);
 
      m_blocks_transferred = 0;
     mp_block_to_fill  = NULL;
@@ -296,14 +302,14 @@ int main(void)
             prepare_tx_data(mp_block_to_fill);
             mp_block_to_fill = NULL;
         }
-        if (mp_block_to_check)
-        {
-            check_rx_data(mp_block_to_check);
-            mp_block_to_check = NULL;
-        }
+        // if (mp_block_to_check)
+        // {
+        //     check_rx_data(mp_block_to_check);
+        //     mp_block_to_check = NULL;
+        // }
         // while (m_blocks_transferred < BLOCKS_TO_TRANSFER);
 
-        NRF_LOG_FLUSH();
+        // NRF_LOG_FLUSH();
 
         // bsp_board_leds_off();
         // nrf_delay_ms(PAUSE_TIME);
