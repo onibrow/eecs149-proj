@@ -53,7 +53,6 @@ BOARD_SOURCES += \
 	nrf_balloc.c\
 	nrf_drv_clock.c\
 	nrf_drv_ppi.c\
-	nrf_drv_spi.c\
 	nrf_drv_twi.c\
 	nrf_drv_uart.c\
 	nrf_fprintf.c\
@@ -91,9 +90,10 @@ BOARD_SOURCES += \
 	simple_logger.c\
 	mmc_nrf.c\
 	ff.c\
+	nrf_drv_spi.c\
+	app_sdcard.c\
 	#diskio_blkdev.c\
 	#nrf_block_dev_sdc.c\
-	#app_sdcard.c\
 
 ifneq ($(SOFTDEVICE_MODEL),blank)
 BOARD_SOURCES += \
