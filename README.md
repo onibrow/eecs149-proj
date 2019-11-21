@@ -2,6 +2,15 @@
 
 Sanga Park, Seiya Ono, Ryan Tsang, Jehan Yang
 
+Setting up a lab computer:
+
+```bash
+cd ~/buckler/software
+git clone https://github.com/onibrow/eecs149-proj
+cd eecs149-proj
+./setup_vm
+```
+
 ## Proposal (10/25)
 
 [Spreadsheet](https://docs.google.com/spreadsheets/d/1WutyDuHFwCbV_97uEuxx-2Y0jQ0Z9K7RMsq6U2ZCgrc/edit?usp=sharing)
