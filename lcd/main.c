@@ -15,9 +15,10 @@
 #include "nrf_pwr_mgmt.h"
 #include "nrf_serial.h"
 #include "nrf_drv_clock.h" //in legacy dir
+#include "nr_drv_spi.h"
 
 #include "buckler.h"
-#include "gpio.h"
+#include "gpio.h" // consider changing it to gpio 
 #include "display.h"
 
 
@@ -176,7 +177,7 @@ int main(void) {
     // when we add more peripherals 
 
     // Initialize SPI protocol for display 
-    nrf_drv_spi_t spi_instance = NRF_DRV_SPI_INSTANCE(1);
+    nrf_drv_spi_t spi_instance2 = NRF_DRV_SPI_INSTANCE(1);
     nrf_drv_spi_config_t spi_config = {
       .sck_pin = BUCKLER_LCD_SCLK,
       .mosi_pin = BUCKLER_LCD_MOSI,
@@ -185,13 +186,13 @@ int main(void) {
       .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
       .orc = 0,
       .frequency = NRF_DRV_SPI_FREQ_4M,
-      .mode = NRF_DRV_SPI_MODE_2,
+      .mode = NRF_DRV_SPI_MODE_2, //1? what does it mean 
       .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
     };
     
-    error_code = nrf_drv_spi_init(&spi_instance, &spi_config, NULL, NULL);
+    error_code = nrf_drv_spi_init(&spi_instance2, &spi_config, NULL, NULL);
     APP_ERROR_CHECK(error_code);
-    display_init(&spi_instance);
+    display_init(&spi_instance2);
     printf("Display initialized!\n");
 
     display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);

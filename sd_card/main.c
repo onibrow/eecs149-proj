@@ -80,8 +80,8 @@ int main(void) {
   // Initialize SD card
   //const char filename[] = "TESTFILE.LOG";
   const char filename[] = "testfile.txt";
-  const char permissions[] = "w,r"; // w = write, a = append, r = read (?)
-  char read_buff [8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  const char permissions[] = "a,r"; // w = write, a = append, r = read (?)
+  char read_buff [9];
 
 
   printf("before log init \n");
@@ -94,25 +94,32 @@ int main(void) {
   //printf("Wrote header to SD card\n");
 
   // Write sample lines
-  int nr_lines = 4;
+  int nr_lines = 100;
 
   printf("before calling logger_log \n");
 
-  for (int i = 0; i < nr_lines; i++) {
+
+  /*for (int i = 0; i < nr_lines; i++) {
     printf("Writing to the text file <%d>\n", i);
-    simple_logger_log("%d\n", i);
+    simple_logger_log("%d", i);
     // simple_logger_log("%s: Line %i - Additional line added\n", "TIMESTAMP", i+1);
-  }
+  }*/
 
   printf("\nbefore calling logger_read \n");
+  printf("Reading buffer\n");
+  simple_logger_read((uint8_t *)read_buff, 8);
+  read_buff[8] = '\0';
 
+  printf("Contents: %s\n\n", read_buff);
+
+/*
   for (int i = 0; i < nr_lines; i++) {
     printf("Reading buffer <%d>\n", i);
     simple_logger_read((uint8_t *)read_buff, 4);
 
     printf("Contents: %s\n\n", read_buff);
   }
-
+*/
   printf("end of for loop... \n");
 
   // Signal that lines were written
