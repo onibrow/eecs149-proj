@@ -7,5 +7,6 @@ ret_code_t led_spi_init(nrf_drv_spi_t const * const p_instance,
 }
 
 ret_code_t show() {
-	nrf_drv_spi_transfer(&spi, m_tx_buf, m_length, m_rx_buf, m_length)
+	// nrf_drv_spi_transfer(&spi, m_tx_buf, m_length, m_rx_buf, m_length)
+	return 0;
 }

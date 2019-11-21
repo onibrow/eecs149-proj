@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "LED_linked_list.h"
 
 #ifndef NRF_DRV_SPI_H__
 	#include "nrf_drv_spi.h"
