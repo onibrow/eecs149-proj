@@ -1,6 +1,6 @@
 #include "LEDStripAPI.h"
 
-void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
+static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
                        void *                    p_context);
 
 /**
@@ -13,7 +13,7 @@ static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
     spi_xfer_done = true;
     if (m_rx_buf[0] != 0)
     {
-        NRF_LOG_HEXDUMP_INFO(m_rx_buf, strlen((const char *)m_rx_buf));
+        // NRF_LOG_HEXDUMP_INFO(m_rx_buf, strlen((const char *)m_rx_buf));
     }
 }
 
@@ -30,7 +30,6 @@ node_t* insert_first(node_t* list, node_t* node) {
 	// if node is empty, fault
 	if (node == NULL) {
         printf("\n***\nERROR: node passed into `insert_first` was NULL!!\n***\n");
-        nrf_delay_ms(100);
         APP_ERROR_CHECK(NRF_ERROR_NULL);
 	}
 
@@ -96,7 +95,7 @@ void free_list(node_t* head) {
 		while (next != NULL) {
 			free(ptr);
 			ptr = next;
-			next = ptr.next;
+			next = ptr->next;
 		}
 
 		free(ptr);
@@ -111,7 +110,7 @@ void free_list(node_t* head) {
 void led_spi_init(nrf_drv_spi_t const * const p_instance) {
 	if (spi_init) {
 		printf("ERROR: led spi already initialized1");
-		return
+		return;
 	}
 	spi_init = true;
 	spi_addr = p_instance;
@@ -138,6 +137,7 @@ void led_strip_init(led_strip_t* strip, uint8_t id) {
  * @param 	strip 	the address of the led_strip instance to free
  */
 void clear_led_strip(led_strip_t* strip) {
+	spi_xfer_done = false;
 	free_list(strip->head);
 	strip->length = 0;
 	strip->head = NULL;
@@ -167,11 +167,52 @@ void clear_led_strip(led_strip_t* strip) {
 		// 	free(strip);
 		// }
 
+/*
+ * Function that adds a new light to the beginning of the passed led strip
+
+ * @param 	strip 	address of strip to add next light to
+ * @param 	color 	color on next light to add
+ */
 void push_next_light(led_strip_t* strip, rgb_color_t color) {
+	spi_xfer_done = false;
+	node_t* new_node = (node_t*) malloc(sizeof(node_t));
+	new_node->color = color;
+	strip->head = insert_first(strip->head, new_node);
+	if(++(strip->length) > NUM_LEDS) {
+		while(strip->length > NUM_LEDS) {
+			free(remove_last(strip->head));
+			strip->length--;
+		}
+	}
 	return;
 }
 
+/*
+ * Function to initiate SPI transfer and display cnages to LED strip
+
+ * @param	strip 	strip to initiate
+ */
 void show(led_strip_t* strip) {
-	// nrf_drv_spi_transfer(&spi, m_tx_buf, m_length, m_rx_buf, m_length)
-	return 0;
+	node_t* ptr = strip->head;
+	int i = 0;
+	while(i < NUM_LEDS) {
+		if (ptr != NULL) {
+			m_tx_buf[i*3] = 	ptr->color.r;
+			m_tx_buf[i*3 + 1] = ptr->color.g;
+			m_tx_buf[i*3 + 2] = ptr->color.b;
+			ptr = ptr->next;
+		} else {
+			m_tx_buf[i*3]   = 0;
+			m_tx_buf[i*3+1] = 0;
+			m_tx_buf[i*3+2] = 0;
+		}
+		i++;
+	}
+	APP_ERROR_CHECK(nrf_drv_spi_transfer(spi_addr, m_tx_buf, m_length, m_rx_buf, m_length));
+
+	while (!spi_xfer_done) {
+    	__WFE();
+    }
+    // NRF_LOG_FLUSH();
+	return;
 }

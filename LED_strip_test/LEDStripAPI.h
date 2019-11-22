@@ -7,6 +7,10 @@
 	#include "nrf_drv_spi.h"
 #endif
 
+#ifndef APP_ERROR_H__
+	#include "app_error.h"
+#endif
+
 #define LED_SPI_DEFAULT_CONFIG 								 \
 {                                                            \
     .sck_pin      = 28,                						 \
@@ -27,7 +31,7 @@ static volatile bool spi_init = false;
 static volatile nrf_drv_spi_t* spi_addr;			 /* < master spi instance address, assigned by user */
 static const nrf_drv_spi_config_t standard_config = LED_SPI_DEFAULT_CONFIG;
 static const uint8_t m_length = NUM_LEDS*3;         /**< Transfer length. */
-static uint8_t       m_tx_buf[NUM_LEDS*3];          /**< TX buffer. */
+static volatile uint8_t       m_tx_buf[NUM_LEDS*3];          /**< TX buffer. */
 static uint8_t       m_rx_buf[NUM_LEDS*3];    		/**< RX buffer. */
 
 /* rgb_color_t datatype for storing color values*/
@@ -40,9 +44,9 @@ typedef struct {
 /* rgb_color_t value used to signify LED turned off */
 #define DARK	\
 {				\
-	.r = 0,		\
-	.g = 0,		\
 	.b = 0,		\
+	.g = 0,		\
+	.r = 0,		\
 }
 
 /* BEGIN LINKED LIST HEADER *********************************************************************/
@@ -68,6 +72,13 @@ node_t* remove_last(node_t* list);
 // Gets the node at the indicated position and returns it (0 indexed)
 node_t* get_node_at(node_t* list, int pos);
 
+/* 
+ * Given a node, frees that node and all subsequent nodes. Does not clear data
+
+ * @param	head 	starting node to begin freeing from
+ */
+void free_list(node_t* head);
+
 /* END LINKED LIST HEADER ***********************************************************************/
 
 typedef struct led_strip_t {
@@ -87,9 +98,32 @@ typedef struct led_strip_t {
 void led_spi_init(nrf_drv_spi_t const * const p_instance);
 
 /*
+ * Function that takes in an uninitialized led_strip instance and initializes it
+
+ * @param 	strip 	the address of an uninitialized led_strip instance
+ * @param 	id 		unique identifier of the led strip (best used as mux index)
+ */
+void led_strip_init(led_strip_t* strip, uint8_t id);
+
+/*
+ * Function that takes in a led_strip instance and zeroes it out (frees the linked list)
+
+ * @param 	strip 	the address of the led_strip instance to free
+ */
+void clear_led_strip(led_strip_t* strip);
+
+/*
+ * Function that adds a new light to the beginning of the passed led strip
+
+ * @param 	strip 	address of strip to add next light to
+ * @param 	color 	color on next light to add
+ */
+void push_next_light(led_strip_t* strip, rgb_color_t color);
+
+/*
  * Function to initiate SPI transfer and display cnages to LED strip
 
- * @param	strip 	strip to initiate transfer
+ * @param	strip 	strip to initiate
  */
 void show(led_strip_t* strip);
 
@@ -102,4 +136,4 @@ void show(led_strip_t* strip);
  * @param	color 	rgb_color_t value to set LED to
 
  */
-void setLED(int pos, rgb_color_t color);
+// void setLED(led_strip_t* strip, int pos, rgb_color_t color);

@@ -19,24 +19,26 @@
 //#include "nrf_delay.h"
 //#include "nrf_gpio.h"
 
+#include "LEDStripAPI.h"
 
 // Pin definitions
 //#define LED NRF_GPIO_PIN_MAP(0,17)
 #define SPI_INSTANCE  1 /**< SPI instance index. */
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
-static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
+
+/* FOLLOWING BLOCK DOES NOT CALL LED API *******************************************************************
+
+static volatile bool spi_xfer_done;  // < Flag used to indicate that SPI instance completed the transfer.
 
 //#define TEST_STRING "Nordic"
 //static const uint8_t leds = 32; 
-static const uint8_t m_length = 32*3;        /**< Transfer length. */
-static uint8_t       m_tx_buf[96];           /**< TX buffer. */
-static uint8_t       m_rx_buf[96];    /**< RX buffer. */
+static const uint8_t m_length = 32*3;        // < Transfer length. 
+static uint8_t       m_tx_buf[96];           // < TX buffer. 
+static uint8_t       m_rx_buf[96];    		 // < RX buffer.
 
 
-/**
- * @brief SPI user event handler.
- * @param event
- */
+// @brief SPI user event handler.
+// @param event
 void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
                        void *                    p_context)
 {
@@ -63,8 +65,49 @@ void setLED(int pos) {
 	}
 }
 
+/* END BLOCK **************************************************************************************************/
+
+led_strip_t strip0;
+
 int main(void) {
-  
+	APP_ERROR_CHECK(NRF_LOG_INIT(NULL));
+	NRF_LOG_DEFAULT_BACKENDS_INIT();
+
+	NRF_LOG_INFO("Begin API Testing.");
+
+	led_spi_init(&spi);
+	NRF_LOG_INFO("led_spi_init() Successful.");
+
+	led_strip_init(&strip0, 0);
+	NRF_LOG_INFO("LED Strip Initialized.");
+
+	NRF_LOG_INFO("Begin Main Loop.");
+
+	int i = 0;
+	//rgb_color_t color_default = {.r = 255, .g = 255, .b = 255};
+
+	while(1) {
+		if (i%5 == 0) {
+			push_next_light(&strip0, (rgb_color_t) {.b = 255, .g = 0, .r = 0});
+		} else if (i%5 == 1) {
+			push_next_light(&strip0, (rgb_color_t) {.b = 0, .g = 255, .r = 0});
+		} else {
+			push_next_light(&strip0, (rgb_color_t) DARK);
+		}
+		
+
+		show(&strip0);
+
+		NRF_LOG_FLUSH();
+
+		if (i++ > NUM_LEDS) {
+			i = 0;
+		}
+
+		nrf_delay_ms(300);
+	}
+
+/* BELOW IS THE WORKING TEST CODE FROM FIRST COMMIT ******************************************************
   //bsp_board_init(BSP_INIT_LEDS);
   APP_ERROR_CHECK(NRF_LOG_INIT(NULL));
   NRF_LOG_DEFAULT_BACKENDS_INIT();
@@ -129,5 +172,9 @@ int main(void) {
 //    nrf_gpio_pin_toggle(LED);
 //    nrf_delay_ms(500);
 //  }
+
+/* END BLOCK *********************************************************************************************/
+
+
 }
 
