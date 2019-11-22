@@ -80,12 +80,16 @@ static bool             m_error_encountered;
 static uint32_t       * volatile mp_block_to_fill  = NULL;
 static uint32_t const * volatile mp_block_to_check = NULL;
 
+int16_t sine_table[] = {0, 0, 23170, 23170, 32767, 32767, 23170, 23170, 
+                        0, 0, -23170, -23170, -32767, -32767, -23170, -23170};
+
 
 static void prepare_tx_data(uint32_t * p_block)
 {
     // These variables will be both zero only at the very beginning of each
     // transfer, so we use them as the indication that the re-initialization
     // should be performed.
+    /*
     if (m_blocks_transferred == 0 && m_zero_samples_to_ignore == 0)
     {
         // Number of initial samples (actually pairs of L/R samples) with zero
@@ -94,7 +98,7 @@ static void prepare_tx_data(uint32_t * p_block)
         m_sample_value_to_send   = 0xCAFE;
         m_sample_value_expected  = 0xCAFE;
         m_error_encountered      = false;
-    }
+    }*/
 
     // [each data word contains two 16-bit samples]
     uint16_t i;
@@ -102,12 +106,14 @@ static void prepare_tx_data(uint32_t * p_block)
     {
     	uint16_t sample_l, sample_r;
     	if (i < I2S_DATA_BLOCK_WORDS / 2) {
-    		sample_l = 0xFFFF;
-    		sample_r = 0xFFFF;
+    		sample_l = 0x7FFF;
+    		sample_r = 0x7FFF;
     	} else {
     		sample_l = 0x0000;
     		sample_r = 0x0000;
     	}
+
+        // sample_;
         // uint16_t sample_l = m_sample_value_to_send - 1;
         // uint16_t sample_r = m_sample_value_to_send + 1;
         // ++m_sample_value_to_send;
@@ -118,7 +124,7 @@ static void prepare_tx_data(uint32_t * p_block)
     }
 }
 
-
+/*
 static bool check_samples(uint32_t const * p_block)
 {
     // [each data word contains two 16-bit samples]
@@ -168,16 +174,17 @@ static bool check_samples(uint32_t const * p_block)
     NRF_LOG_INFO("%3u: OK", m_blocks_transferred);
     return true;
 }
+*/
 
 
 static void check_rx_data(uint32_t const * p_block)
 {
     ++m_blocks_transferred;
 
-    if (!m_error_encountered)
+    /*if (!m_error_encountered)
     {
         m_error_encountered = !check_samples(p_block);
-    }
+    }*/
 
     // if (m_error_encountered)
     // {
@@ -257,32 +264,34 @@ int main(void)
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
-    printf("I2S loopback example started.\n");
+    printf("\n\n=============================");
+    printf("\nI2S loopback example started.\n");
+    printf("=============================\n\n");
 
     nrf_drv_i2s_config_t config = NRF_DRV_I2S_DEFAULT_CONFIG;
-    // In Master mode the MCK frequency and the MCK/LRCK ratio should be
-    // set properly in order to achieve desired audio sample rate (which
-    // is equivalent to the LRCK frequency).
-    // For the following settings we'll get the LRCK frequency equal to
-    // 15873 Hz (the closest one to 16 kHz that is possible to achieve).
-    // config.sdin_pin  = I2S_SDIN_PIN;
-    // config.sdout_pin = I2S_SDOUT_PIN;
-    // config.mck_setup = NRF_I2S_MCK_32MDIV21;
-    // config.ratio     = NRF_I2S_RATIO_96X;
-    // config.channels  = NRF_I2S_CHANNELS_STEREO;
-    config.mck_setup = NRF_I2S_MCK_32MDIV125;
-    config.ratio = NRF_I2S_RATIO_32X;
-    // config.channels = NRF_I2S_CHANNELS_STEREO;
-    // config.format = NRF_I2S_FORMAT_ALIGNED;
+
+    config.channels  = NRF_I2S_CHANNELS_STEREO;
+    config.mck_setup = NRF_I2S_MCK_32MDIV21;
+    config.ratio = NRF_I2S_RATIO_96X;
     err_code = nrf_drv_i2s_init(&config, data_handler);
     APP_ERROR_CHECK(err_code);
 
     printf("SDIN Pin  %d\n", config.sdin_pin);
     printf("SDOUT Pin %d\n", config.sdout_pin);
+    printf("BCLK Pin  %d\n", config.sck_pin);
+    printf("LRCLK Pin %d\n", config.lrck_pin);
+
+    printf("IQRQ:     %d\n", config.irq_priority);
+    printf("Mode:     %d\n", config.mode);
+    printf("Fortmat:  %d\n", config.format);
+    printf("Align:    %d\n", config.alignment);
+    printf("Width:    %d\n", config.sample_width);
+    printf("Channels: %d\n", config.channels);
     printf("MCK Setup %d\n", config.mck_setup);
     printf("Ratio     %d\n", config.ratio);
 
-     m_blocks_transferred = 0;
+
+    m_blocks_transferred = 0;
     mp_block_to_fill  = NULL;
     mp_block_to_check = NULL;
 
