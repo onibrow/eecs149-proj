@@ -1,10 +1,26 @@
 #include "LEDStripAPI.h"
 
+void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
+                       void *                    p_context);
+
+/**
+ * @brief SPI user event handler.
+ * @param event
+ */
+static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
+                       void *                    p_context)
+{
+    spi_xfer_done = true;
+    if (m_rx_buf[0] != 0)
+    {
+        NRF_LOG_HEXDUMP_INFO(m_rx_buf, strlen((const char *)m_rx_buf));
+    }
+}
 
 /* BEGIN LINKED LIST FUNCTIONS *****************************************************************************************/
 
 /*
- * Inserts a node at the beginning of the Linked List. 
+ * Inserts a given node at the beginning of the Linked List. 
  * If list is NULL, a new node is created and returned.
 
  * @param	list 	The linked list to add to. If NULL, a new list is created and returned
@@ -67,19 +83,95 @@ node_t* get_node_at(node_t* list, int pos) {
 	return ptr;
 }
 
+/* 
+ * Given a node, frees that node and all subsequent nodes. Does not clear data
 
+ * @param	head 	starting node to begin freeing from
+ */
+void free_list(node_t* head) {
+	if (head != NULL) {
+		node_t* ptr = head;
+		node_t* next = ptr->next;
+
+		while (next != NULL) {
+			free(ptr);
+			ptr = next;
+			next = ptr.next;
+		}
+
+		free(ptr);
+	}
+	return;
+}
 /* END LINKED LIST FUNCTIONS *****************************************************************************************/
 
 /*
  * 
- */
-ret_code_t led_spi_init(nrf_drv_spi_t const * const p_instance,
-						nrf_drv_spi_evt_handler_t    handler,
-                        void *                       p_context) {
-	return nrf_drv_spi_init(p_instance, &standard_config, handler, NULL);
+  */
+void led_spi_init(nrf_drv_spi_t const * const p_instance) {
+	if (spi_init) {
+		printf("ERROR: led spi already initialized1");
+		return
+	}
+	spi_init = true;
+	spi_addr = p_instance;
+	APP_ERROR_CHECK(nrf_drv_spi_init(p_instance, &standard_config, spi_event_handler, NULL));
+	return;
 }
 
-ret_code_t show() {
+/*
+ * Function that takes in an uninitialized led_strip instance and initializes it
+
+ * @param 	strip 	the address of an uninitialized led_strip instance
+ * @param 	id 		unique identifier of the led strip (best used as mux index)
+ */
+void led_strip_init(led_strip_t* strip, uint8_t id) {
+	strip->id = id;
+	strip->head = NULL;
+	strip->length = 0;
+	return;
+}
+
+/*
+ * Function that takes in a led_strip instance and zeroes it out (frees the linked list)
+
+ * @param 	strip 	the address of the led_strip instance to free
+ */
+void clear_led_strip(led_strip_t* strip) {
+	free_list(strip->head);
+	strip->length = 0;
+	strip->head = NULL;
+	return;
+}
+
+		// DECIDED NOT TO USE DYNAMIC ALLOCATION FOR led_strip_t DATA STRUCT
+
+		// led_strip_t* new_led_strip_init(uint8_t id) {
+		// 	led_strip_t* strip = (led_strip_t*) malloc(sizeof(led_strip_t));
+		// 	strip->id = id;
+		// 	strip->head = NULL;
+		// 	strip->length = 0;
+
+		// 	return strip;
+		// }
+
+		// /*
+		//  * Deinitializes the given led strip instance altogether
+
+		//  * @param	strip 	the led_strip_t instance to deinitialize
+		//  */
+		// void led_strip_deinit(led_strip_t* strip) {
+		// 	free_list(strip->head);
+		// 	strip->length = 0;
+		// 	strip->head = NULL;
+		// 	free(strip);
+		// }
+
+void push_next_light(led_strip_t* strip, rgb_color_t color) {
+	return;
+}
+
+void show(led_strip_t* strip) {
 	// nrf_drv_spi_transfer(&spi, m_tx_buf, m_length, m_rx_buf, m_length)
 	return 0;
 }

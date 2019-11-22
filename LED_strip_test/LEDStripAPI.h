@@ -21,8 +21,10 @@
 }
 #define NUM_LEDS 32
 
-static volatile bool spi_xfer_done;  /**< Flag used to indicate that SPI instance completed the transfer. */
+static volatile bool spi_xfer_done;  /* < Flag used to indicate that SPI instance completed the transfer. */
+static volatile bool spi_init = false;
 
+static volatile nrf_drv_spi_t* spi_addr;			 /* < master spi instance address, assigned by user */
 static const nrf_drv_spi_config_t standard_config = LED_SPI_DEFAULT_CONFIG;
 static const uint8_t m_length = NUM_LEDS*3;         /**< Transfer length. */
 static uint8_t       m_tx_buf[NUM_LEDS*3];          /**< TX buffer. */
@@ -44,6 +46,8 @@ typedef struct {
 }
 
 /* BEGIN LINKED LIST HEADER *********************************************************************/
+/* NOTE: THE CALLER IS RESPONSIBLE FOR DYNAMIC ALLOCATION!! */
+
 typedef struct node_t {
 	rgb_color_t		color;
 	struct node_t* 	next;
@@ -66,38 +70,28 @@ node_t* get_node_at(node_t* list, int pos);
 
 /* END LINKED LIST HEADER ***********************************************************************/
 
+typedef struct led_strip_t {
+	uint8_t		id;			// Strip Identifier for eventual MUX Select
+	node_t* 	head;		// pointer to linked list representation of LED strip
+	uint8_t 	length;		// current length of the linked list
+
+} led_strip_t;
 
 /*
 
  * Function for initializing SPI interface for specific use with WS2801 LED Strips
  * See LED_SPI_DEFAULT_CONFIG for default configuration of pins and clock frequency
 
- * @param[in] p_instance Pointer to the driver instance structure.
- * @param     handler    Event handler provided by the user. If NULL, transfers
- *                       will be performed in blocking mode.
- * @param     p_context  Context passed to event handler.
-
- * @retval NRF_SUCCESS             If initialization was successful.
- * @retval NRF_ERROR_INVALID_STATE If the driver was already initialized.
- * @retval NRF_ERROR_BUSY          If some other peripheral with the same
- *                                 instance ID is already in use. This is
- *                                 possible only if PERIPHERAL_RESOURCE_SHARING_ENABLED
- *                                 is set to a value other than zero.
+ * @param[in]	p_instance 	Pointer to the driver instance structure.
  */
-ret_code_t led_spi_init(nrf_drv_spi_t const * const p_instance,
-						nrf_drv_spi_evt_handler_t    handler,
-                        void *                       p_context);
+void led_spi_init(nrf_drv_spi_t const * const p_instance);
 
 /*
  * Function to initiate SPI transfer and display cnages to LED strip
 
- * @retval NRF_SUCCESS            If the operation was successful.
- * @retval NRF_ERROR_BUSY         If a previously started transfer has not finished
- *                                yet.
- * @retval NRF_ERROR_INVALID_ADDR If the provided buffers are not placed in the Data
- *                                RAM region.
+ * @param	strip 	strip to initiate transfer
  */
-ret_code_t show();
+void show(led_strip_t* strip);
 
 
 /*
