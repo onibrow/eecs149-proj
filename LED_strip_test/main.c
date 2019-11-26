@@ -81,20 +81,33 @@ int main(void) {
 	led_strip_init(&strip0, 0);
 	NRF_LOG_INFO("LED Strip Initialized.");
 
+	nrf_gpio_cfg_output(3);
+	nrf_gpio_cfg_output(4);
+
+	nrf_gpio_pin_clear(3);
+	nrf_gpio_pin_clear(4);
+
+	NRF_LOG_INFO("GPIO Initialized.");
+
 	NRF_LOG_INFO("Begin Main Loop.");
+
 
 	int i = 0;
 	//rgb_color_t color_default = {.r = 255, .g = 255, .b = 255};
 
 	while(1) {
-		if (i%5 == 0) {
+		if (i%8 == 0) {
 			push_next_light(&strip0, (rgb_color_t) {.b = 255, .g = 0, .r = 0});
-		} else if (i%5 == 1) {
+		} else if (i%8 == 1) {
 			push_next_light(&strip0, (rgb_color_t) {.b = 0, .g = 255, .r = 0});
 		} else {
 			push_next_light(&strip0, (rgb_color_t) DARK);
 		}
 		
+		show(&strip0);
+
+		// switch stip on mux and show on other strip
+		nrf_gpio_pin_toggle(4);
 
 		show(&strip0);
 
@@ -104,7 +117,7 @@ int main(void) {
 			i = 0;
 		}
 
-		nrf_delay_ms(300);
+		nrf_delay_ms(100);
 	}
 
 /* BELOW IS THE WORKING TEST CODE FROM FIRST COMMIT ******************************************************

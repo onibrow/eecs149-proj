@@ -25,6 +25,8 @@
 }
 #define NUM_LEDS 32
 
+#define NUM_STRIPS 2
+
 static volatile bool spi_xfer_done;  /* < Flag used to indicate that SPI instance completed the transfer. */
 static volatile bool spi_init = false;
 
@@ -35,7 +37,7 @@ static volatile uint8_t       m_tx_buf[NUM_LEDS*3];          /**< TX buffer. */
 static uint8_t       m_rx_buf[NUM_LEDS*3];    		/**< RX buffer. */
 
 /* rgb_color_t datatype for storing color values*/
-typedef struct {
+typedef struct rgb_color_t {
 	uint8_t r;
 	uint8_t g;
 	uint8_t b;
@@ -48,6 +50,8 @@ typedef struct {
 	.g = 0,		\
 	.r = 0,		\
 }
+
+// static rgb_color_t strip[NUM_STRIPS][NUM_LEDS];
 
 /* BEGIN LINKED LIST HEADER *********************************************************************/
 /* NOTE: THE CALLER IS RESPONSIBLE FOR DYNAMIC ALLOCATION!! */
@@ -80,6 +84,7 @@ node_t* get_node_at(node_t* list, int pos);
 void free_list(node_t* head);
 
 /* END LINKED LIST HEADER ***********************************************************************/
+
 
 typedef struct led_strip_t {
 	uint8_t		id;			// Strip Identifier for eventual MUX Select
