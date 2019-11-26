@@ -82,8 +82,8 @@ void push_next_light(int8_t id, rgb_color_t color) {
  * @param	id 		 	strip to initiate transfer
  */
 void show(int8_t id) {
-	nrf_gpio_pin_write(4, (id % 2));
-	nrf_gpio_pin_write(3, ((id >> 1) % 2));
+	nrf_gpio_pin_write(MUX_PIN_A, (id % 2));
+	nrf_gpio_pin_write(MUX_PIN_B, ((id >> 1) % 2));
 
 	int i = front[id];
 	int count = 0;

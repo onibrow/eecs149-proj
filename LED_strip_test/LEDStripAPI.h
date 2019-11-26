@@ -31,6 +31,9 @@
 
 #define NUM_STRIPS 2 	// CHANGE THIS FOR CORRECT NUMBER OF STRIPS
 
+#define MUX_PIN_A 4 	// CHANGE THIS FOR CORRECT MUX PIN A
+#define MUX_PIN_B 3 	// CHANGE THIS FOR CORRECT MUX PIN B
+
 static volatile bool spi_xfer_done;  /* < Flag used to indicate that SPI instance completed the transfer. */
 static volatile bool spi_init = false;
 
