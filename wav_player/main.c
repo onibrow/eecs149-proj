@@ -32,7 +32,7 @@ nrf_drv_i2s_buffers_t const buffer_one = {
     .p_tx_buffer = m_buffer_tx[1],
 };
 
-uint8_t  next_i2s_buff = 1;
+uint8_t  next_i2s_buff = 0;
 bool     file_done = false;
 
 static uint8_t volatile m_blocks_transferred     = 0;
@@ -40,7 +40,7 @@ static uint8_t volatile m_blocks_transferred     = 0;
 static uint32_t       * volatile mp_block_to_fill  = NULL;
 static uint32_t const * volatile mp_block_to_check = NULL;
 
-static void prepare_tx_data(const uint32_t * p_block)
+static void prepare_tx_data(uint32_t * p_block)
 {
     // These variables will be both zero only at the very beginning of each
     // transfer, so we use them as the indication that the re-initialization
@@ -56,10 +56,16 @@ static void prepare_tx_data(const uint32_t * p_block)
         m_error_encountered      = false;
     }*/
     file_done = simple_logger_read((uint8_t *) p_block , I2S_DATA_BLOCK_WORDS) != 0;
-    for (int i = 0; i < I2S_DATA_BLOCK_WORDS; i++) {
-        printf("%x ", p_block[i]);
+    uint8_t i = 0;
+    uint32_t temp = 0;
+    while (i < I2S_DATA_BLOCK_WORDS) {
+        temp = p_block[i];
+        p_block[i] = ((temp & 0xFF) << 24) + 
+                     ((temp & 0xFF00) << 8) + 
+                     ((temp & 0xFF0000) >> 8) + 
+                     ((temp & 0xFF000000) >> 24);
+        i += 1;
     }
-    printf("\n\n");
     // each data word contains two 16-bit samples
     /*
     uint16_t i;
@@ -105,10 +111,22 @@ static void data_handler(nrf_drv_i2s_buffers_t const * p_released,
         APP_ERROR_CHECK(nrf_drv_i2s_next_buffers_set(&buffer_one));
         next_i2s_buff = 1;
         prepare_tx_data(buffer_zero.p_tx_buffer);
+
+        // printf("\nbuffer_zero: \n", buffer_zero);
+        // for (int i = 0; i < I2S_DATA_BLOCK_WORDS; i++) {
+        //     printf("%x ", buffer_zero.p_tx_buffer[i]);
+        // }
+        // printf("\nbuff_zero done\n");
     } else if (next_i2s_buff == 1) {
         APP_ERROR_CHECK(nrf_drv_i2s_next_buffers_set(&buffer_zero));
-        next_i2s_buff = 0;
-        prepare_tx_data(buffer_one.p_tx_buffer);        
+        next_i2s_buff = 0;        
+        prepare_tx_data(buffer_one.p_tx_buffer);
+
+        // printf("\nbuffer_one: \n", buffer_one);   
+        // for (int i = 0; i < I2S_DATA_BLOCK_WORDS; i++) {
+        //     printf("%x ", buffer_one.p_tx_buffer[i]);
+        // }
+        // printf("\nbuff_one done\n");     
     }
         /*
     if (!p_released->p_rx_buffer)
@@ -167,7 +185,7 @@ int main(void)
     nrf_gpio_pin_set(BUCKLER_SD_ENABLE);
     nrf_gpio_pin_set(BUCKLER_SD_CS);
 
-    const char filename[] = "song.wav";
+    const char filename[] = "blah.txt";
     const char permissions[] = "a,r"; // w = write, a = append, r = read (?)
     // uint8_t BUF_SIZE = I2S_DATA_BLOCK_WORDS;
     // char read_buff [BUF_SIZE + 1];
@@ -200,11 +218,14 @@ int main(void)
     printf("MCK Setup %d\n", config.mck_setup);
     printf("Ratio     %d\n", config.ratio);
     printf("\n\n===========================\n\n");
+    printf("Buffer Zero Addr: %x\n", &buffer_zero);
+    printf("Buffer One Addr:  %x\n\n", &buffer_one);
     m_blocks_transferred = 0;
     mp_block_to_fill  = NULL;
     mp_block_to_check = NULL;
 
     prepare_tx_data(buffer_zero.p_tx_buffer);
+    prepare_tx_data(buffer_one.p_tx_buffer);
 
     // nrf_drv_i2s_buffers_t const initial_buffers = {
     //     .p_tx_buffer = m_buffer_tx[0],
