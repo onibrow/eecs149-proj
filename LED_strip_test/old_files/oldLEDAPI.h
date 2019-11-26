@@ -11,10 +11,6 @@
 	#include "app_error.h"
 #endif
 
-#ifndef NRF_GPIO_H__
-	#include "nrf_gpio.h"
-#endif
-
 #define LED_SPI_DEFAULT_CONFIG 								 \
 {                                                            \
     .sck_pin      = 28,                						 \
@@ -27,9 +23,9 @@
     .mode         = NRF_DRV_SPI_MODE_0,                      \
     .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,         \
 }
-#define NUM_LEDS 32 	// CHANGE THIS FOR CORRECT NUMBER OF LEDS
+#define NUM_LEDS 32
 
-#define NUM_STRIPS 2 	// CHANGE THIS FOR CORRECT NUMBER OF STRIPS
+#define NUM_STRIPS 2
 
 static volatile bool spi_xfer_done;  /* < Flag used to indicate that SPI instance completed the transfer. */
 static volatile bool spi_init = false;
@@ -40,12 +36,11 @@ static const uint8_t m_length = NUM_LEDS*3;         /**< Transfer length. */
 static volatile uint8_t       m_tx_buf[NUM_LEDS*3];          /**< TX buffer. */
 static uint8_t       m_rx_buf[NUM_LEDS*3];    		/**< RX buffer. */
 
-/* rgb_color_t datatype for storing color values */
-/* NOTE: colors need to be declared in reverse order (i.e. b, g, r) */
+/* rgb_color_t datatype for storing color values*/
 typedef struct rgb_color_t {
-	uint8_t b;
-	uint8_t g;
 	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 } rgb_color_t;
 
 /* rgb_color_t value used to signify LED turned off */
@@ -56,7 +51,47 @@ typedef struct rgb_color_t {
 	.r = 0,		\
 }
 
-static rgb_color_t strips[NUM_STRIPS][NUM_LEDS];
+// static rgb_color_t strip[NUM_STRIPS][NUM_LEDS];
+
+/* BEGIN LINKED LIST HEADER *********************************************************************/
+/* NOTE: THE CALLER IS RESPONSIBLE FOR DYNAMIC ALLOCATION!! */
+
+typedef struct node_t {
+	rgb_color_t		color;
+	struct node_t* 	next;
+} node_t;
+
+/*
+ * Inserts a node at the beginning of the Linked List. 
+ * If list is NULL, a new node is created and returned.
+
+ * @param	list 	The linked list to add to. If NULL, a new list is created and returned
+ * @param	node 	Node to add to the given linked list
+ */
+node_t* insert_first(node_t* list, node_t* node);
+
+// Pops the last value in the Linked List and returns it
+node_t* remove_last(node_t* list);
+
+// Gets the node at the indicated position and returns it (0 indexed)
+node_t* get_node_at(node_t* list, int pos);
+
+/* 
+ * Given a node, frees that node and all subsequent nodes. Does not clear data
+
+ * @param	head 	starting node to begin freeing from
+ */
+void free_list(node_t* head);
+
+/* END LINKED LIST HEADER ***********************************************************************/
+
+
+typedef struct led_strip_t {
+	uint8_t		id;			// Strip Identifier for eventual MUX Select
+	node_t* 	head;		// pointer to linked list representation of LED strip
+	uint8_t 	length;		// current length of the linked list
+
+} led_strip_t;
 
 /*
 
@@ -68,16 +103,19 @@ static rgb_color_t strips[NUM_STRIPS][NUM_LEDS];
 void led_spi_init(nrf_drv_spi_t const * const p_instance);
 
 /*
- * Function that zeros out the LED strips and initializes the MUX
+ * Function that takes in an uninitialized led_strip instance and initializes it
+
+ * @param 	strip 	the address of an uninitialized led_strip instance
+ * @param 	id 		unique identifier of the led strip (best used as mux index)
  */
-void led_strips_init();
+void led_strip_init(led_strip_t* strip, uint8_t id);
 
 /*
  * Function that takes in a led_strip instance and zeroes it out (frees the linked list)
 
- * @param 	id 	 	the id of the led_strip instance to free (0 indexed)
+ * @param 	strip 	the address of the led_strip instance to free
  */
-void clear_led_strip(int8_t id);
+void clear_led_strip(led_strip_t* strip);
 
 /*
  * Function that adds a new light to the beginning of the passed led strip
@@ -85,22 +123,22 @@ void clear_led_strip(int8_t id);
  * @param 	strip 	address of strip to add next light to
  * @param 	color 	color on next light to add
  */
-void push_next_light(int8_t id, rgb_color_t color);
+void push_next_light(led_strip_t* strip, rgb_color_t color);
 
 /*
  * Function to initiate SPI transfer and display cnages to LED strip
 
- * @param	id 		 	strip to initiate transfer
+ * @param	strip 	strip to initiate
  */
-void show(int8_t id);
+void show(led_strip_t* strip);
 
 
 /*
  * Function for setting individual LEDs with a specified color
  * Note: Does not affect other LEDs
 
- * @param 	id 		strip id to set LED in
  * @param	pos 	position of LED to set
  * @param	color 	rgb_color_t value to set LED to
+
  */
-void setLED(int8_t id, int pos, rgb_color_t color);
+// void setLED(led_strip_t* strip, int pos, rgb_color_t color);

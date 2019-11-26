@@ -67,7 +67,8 @@ void setLED(int pos) {
 
 /* END BLOCK **************************************************************************************************/
 
-led_strip_t strip0;
+
+// led_strip_t strip0;
 
 int main(void) {
 	APP_ERROR_CHECK(NRF_LOG_INIT(NULL));
@@ -78,19 +79,40 @@ int main(void) {
 	led_spi_init(&spi);
 	NRF_LOG_INFO("led_spi_init() Successful.");
 
-	led_strip_init(&strip0, 0);
+	led_strips_init();
 	NRF_LOG_INFO("LED Strip Initialized.");
-
-	nrf_gpio_cfg_output(3);
-	nrf_gpio_cfg_output(4);
-
-	nrf_gpio_pin_clear(3);
-	nrf_gpio_pin_clear(4);
 
 	NRF_LOG_INFO("GPIO Initialized.");
 
 	NRF_LOG_INFO("Begin Main Loop.");
 
+	int i = 0;
+
+	while(1) {
+		if (i%8 == 0) {
+			push_next_light(0, (rgb_color_t) {.b = 255, .g = 0, .r = 0});
+			push_next_light(1, (rgb_color_t) {.b = 255, .g = 255, .r = 0});
+		} else if (i%8 == 1) {
+			push_next_light(0, (rgb_color_t) {.b = 0, .g = 255, .r = 0});
+			push_next_light(1, (rgb_color_t) {.b = 0, .g = 127, .r = 255});
+		} else {
+			push_next_light(0, (rgb_color_t) DARK);
+			push_next_light(1, (rgb_color_t) DARK);
+		}
+		
+		show(0);
+		show(1);
+
+		NRF_LOG_FLUSH();
+
+		if (i++ > NUM_LEDS) {
+			i = 0;
+		}
+
+		nrf_delay_ms(100);
+	}
+
+/* LOOP USED FOR LINKED LIST IMPLEMENTATION OF API *******************************************************
 
 	int i = 0;
 	//rgb_color_t color_default = {.r = 255, .g = 255, .b = 255};
@@ -119,6 +141,8 @@ int main(void) {
 
 		nrf_delay_ms(100);
 	}
+
+/* END BLOCK *********************************************************************************************/
 
 /* BELOW IS THE WORKING TEST CODE FROM FIRST COMMIT ******************************************************
   //bsp_board_init(BSP_INIT_LEDS);
