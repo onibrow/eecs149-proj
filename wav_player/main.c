@@ -119,9 +119,11 @@ int main(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
     nrf_sdh_enable_request();
 
- /* +------------------------+
-    | SD Card Initialization |
-    +------------------------+ */
+    printf("\n\n=============================");
+    printf("\nI2S wav file example started.\n");
+    printf("=============================\n\n");
+
+// SD Card Initialization {{{
     // Initialize GPIO driver
     if (!nrfx_gpiote_is_init()) {
         err_code = nrfx_gpiote_init();
@@ -135,15 +137,19 @@ int main(void)
     nrf_gpio_cfg_input(BUCKLER_SD_MISO, NRF_GPIO_PIN_NOPULL);
     nrf_gpio_pin_set(BUCKLER_SD_ENABLE);
     nrf_gpio_pin_set(BUCKLER_SD_CS);
+
     const char filename[] = "testfile.txt";
-    const char permissions[] = "a,r";
+    const char permissions[] = "a,r"; // w = write, a = append, r = read (?)
+    uint8_t BUF_SIZE = 8;
+    char read_buff [BUF_SIZE + 1];
+    read_buff[BUF_SIZE] = '\0';
+
     APP_ERROR_CHECK(simple_logger_init(filename, permissions));
+
     simple_logger_reset_fp();
+// }}} SD CARD INIT END
 
-    printf("\n\n=============================");
-    printf("\nI2S wav file example started.\n");
-    printf("=============================\n\n");
-
+// CONFIGURE AND START I2S {{{    
     nrf_drv_i2s_config_t config = NRF_DRV_I2S_DEFAULT_CONFIG;
 
     config.channels  = NRF_I2S_CHANNELS_STEREO;
@@ -156,7 +162,6 @@ int main(void)
     printf("SDOUT Pin %d\n", config.sdout_pin);
     printf("BCLK Pin  %d\n", config.sck_pin);
     printf("LRCLK Pin %d\n", config.lrck_pin);
-
     printf("IQRQ:     %d\n", config.irq_priority);
     printf("Mode:     %d\n", config.mode);
     printf("Fortmat:  %d\n", config.format);
@@ -165,7 +170,6 @@ int main(void)
     printf("Channels: %d\n", config.channels);
     printf("MCK Setup %d\n", config.mck_setup);
     printf("Ratio     %d\n", config.ratio);
-
 
     m_blocks_transferred = 0;
     mp_block_to_fill  = NULL;
@@ -179,16 +183,28 @@ int main(void)
     };
     err_code = nrf_drv_i2s_start(&initial_buffers, I2S_DATA_BLOCK_WORDS, 0);
     APP_ERROR_CHECK(err_code);
+// }}} END I2S INIT
 
-    for (;;)
-    {
+// MAIN LOOP {{{
+    printf("File Contents: \n\n");
+    bool file_done = false;
+    while (!file_done) {
         if (mp_block_to_fill)
         {
             prepare_tx_data(mp_block_to_fill);
             mp_block_to_fill = NULL;
         }
+        file_done = simple_logger_read((uint8_t *) read_buff, BUF_SIZE) != 0;
+        printf("%s", read_buff);
+        nrf_delay_ms(1);
     }
-    nrf_drv_i2s_stop();
+    printf("\n\nDone reading.\n");
+    nrf_drv_i2s_stop(); 
+// MAIN LOOP END }}}
+
+    // Signal that lines were written
+    nrf_gpio_cfg_output(BUCKLER_LED0);
+    nrf_gpio_pin_clear(BUCKLER_LED0);
 }
 
 /** @} */
