@@ -4,7 +4,7 @@ i=0
 
 echo -ne '' > square_wave.txt
 
-while [ $i -lt 1024 ]; do
+while [ $i -lt 128 ]; do
   j=0
   while [ $j -lt 32 ]; do
     echo -ne '\x7F\xFF' >> square_wave.txt
