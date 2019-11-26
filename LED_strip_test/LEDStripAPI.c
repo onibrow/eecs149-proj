@@ -17,6 +17,7 @@ static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
     {
         // NRF_LOG_HEXDUMP_INFO(m_rx_buf, strlen((const char *)m_rx_buf));
     }
+    return;
 }
 
 /*
@@ -49,6 +50,9 @@ void led_strips_init() {
 		front[i] = NUM_LEDS - 1;
 	}
 
+	nrf_gpio_cfg_output(MUX_PIN_A);
+	nrf_gpio_cfg_output(MUX_PIN_B);
+	return;
 }
 
 /*
@@ -61,6 +65,7 @@ void clear_led_strip(int8_t id) {
 		strips[id][i] = (rgb_color_t) DARK;
 	}
 	front[id] = NUM_LEDS - 1;
+	return;
 }
 
 /*
@@ -74,6 +79,7 @@ void push_next_light(int8_t id, rgb_color_t color) {
 	if (--(front[id]) < 0) {
 		front[id] = NUM_LEDS - 1;
 	} 
+	return;
 }
 
 /*
@@ -102,6 +108,7 @@ void show(int8_t id) {
 	while (!spi_xfer_done) {
     	__WFE();
     }
+    return;
 }
 
 
