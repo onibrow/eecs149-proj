@@ -88,6 +88,7 @@ void push_next_light(int8_t id, rgb_color_t color) {
  * @param	id 		 	strip to initiate transfer
  */
 void show(int8_t id) {
+	spi_xfer_done = false;
 	nrf_gpio_pin_write(MUX_PIN_A, (id % 2));
 	nrf_gpio_pin_write(MUX_PIN_B, ((id >> 1) % 2));
 
@@ -97,9 +98,9 @@ void show(int8_t id) {
 		if (++i >= NUM_LEDS) {
 			i = 0;
 		}
-		m_tx_buf[i*3] = 	strips[id][i].r;
-		m_tx_buf[i*3 + 1] = strips[id][i].g;
-		m_tx_buf[i*3 + 2] = strips[id][i].b;
+		m_tx_buf[count*3] = 	strips[id][i].r;
+		m_tx_buf[count*3 + 1] = strips[id][i].g;
+		m_tx_buf[count*3 + 2] = strips[id][i].b;
 		count++;
 	}
 

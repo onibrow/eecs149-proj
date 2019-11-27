@@ -89,10 +89,10 @@ int main(void) {
 	int i = 0;
 
 	while(1) {
-		if (i%8 == 0) {
+		if (i%7 == 0) {
 			push_next_light(0, (rgb_color_t) {.b = 255, .g = 0, .r = 0});
 			push_next_light(1, (rgb_color_t) {.b = 255, .g = 255, .r = 0});
-		} else if (i%8 == 1) {
+		} else if (i%7 == 1) {
 			push_next_light(0, (rgb_color_t) {.b = 0, .g = 255, .r = 0});
 			push_next_light(1, (rgb_color_t) {.b = 0, .g = 127, .r = 255});
 		} else {
