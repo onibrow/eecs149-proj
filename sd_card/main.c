@@ -47,9 +47,9 @@ int main(void) {
   printf("====================\n\n");
 
   // Initialize SD card
-  const char filename[] = "testfile.txt";
+  const char filename[] = "blah_raw.txt";
   const char permissions[] = "a,r"; // w = write, a = append, r = read (?)
-  uint8_t BUF_SIZE = 8;
+  uint8_t BUF_SIZE = 128;
   char read_buff [BUF_SIZE + 1];
 
   // Start file

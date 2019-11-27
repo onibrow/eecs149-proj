@@ -19,7 +19,7 @@
 #include "buckler.h"
 #include "simple_logger.h"
 
-#define I2S_DATA_BLOCK_WORDS    64
+#define I2S_DATA_BLOCK_WORDS    32
 // static uint32_t m_buffer_rx[2][I2S_DATA_BLOCK_WORDS];
 static uint32_t m_buffer_tx[2][I2S_DATA_BLOCK_WORDS];
 
@@ -32,7 +32,7 @@ nrf_drv_i2s_buffers_t const buffer_one = {
     .p_tx_buffer = m_buffer_tx[1],
 };
 
-uint8_t  next_i2s_buff = 0;
+uint8_t  curr_i2s_buff = 0;
 bool     file_done = false;
 
 static uint8_t volatile m_blocks_transferred     = 0;
@@ -55,7 +55,7 @@ static void prepare_tx_data(uint32_t * p_block)
         m_sample_value_expected  = 0xCAFE;
         m_error_encountered      = false;
     }*/
-    file_done = simple_logger_read((uint8_t *) p_block , I2S_DATA_BLOCK_WORDS) != 0;
+    file_done = simple_logger_read((uint8_t *) p_block , I2S_DATA_BLOCK_WORDS*4) != 0;
     uint8_t i = 0;
     uint32_t temp = 0;
     while (i < I2S_DATA_BLOCK_WORDS) {
@@ -107,22 +107,22 @@ static void data_handler(nrf_drv_i2s_buffers_t const * p_released,
     // No data has been transferred yet at this point, so there is nothing to
     // check. Only the buffers for the next part of the transfer should be
     // provided.
-    if (next_i2s_buff == 0) {
+    if (curr_i2s_buff == 0) {
         APP_ERROR_CHECK(nrf_drv_i2s_next_buffers_set(&buffer_one));
-        next_i2s_buff = 1;
+        curr_i2s_buff = 1;
         prepare_tx_data(buffer_zero.p_tx_buffer);
 
-        // printf("\nbuffer_zero: \n", buffer_zero);
+        // printf("buffer_zero: \n", buffer_zero);
         // for (int i = 0; i < I2S_DATA_BLOCK_WORDS; i++) {
         //     printf("%x ", buffer_zero.p_tx_buffer[i]);
         // }
         // printf("\nbuff_zero done\n");
-    } else if (next_i2s_buff == 1) {
+    } else if (curr_i2s_buff == 1) {
         APP_ERROR_CHECK(nrf_drv_i2s_next_buffers_set(&buffer_zero));
-        next_i2s_buff = 0;        
+        curr_i2s_buff = 0;        
         prepare_tx_data(buffer_one.p_tx_buffer);
 
-        // printf("\nbuffer_one: \n", buffer_one);   
+        // printf("buffer_one: \n", buffer_one);   
         // for (int i = 0; i < I2S_DATA_BLOCK_WORDS; i++) {
         //     printf("%x ", buffer_one.p_tx_buffer[i]);
         // }
@@ -185,7 +185,7 @@ int main(void)
     nrf_gpio_pin_set(BUCKLER_SD_ENABLE);
     nrf_gpio_pin_set(BUCKLER_SD_CS);
 
-    const char filename[] = "blah.txt";
+    const char filename[] = "sixteen.txt";
     const char permissions[] = "a,r"; // w = write, a = append, r = read (?)
     // uint8_t BUF_SIZE = I2S_DATA_BLOCK_WORDS;
     // char read_buff [BUF_SIZE + 1];
@@ -201,7 +201,9 @@ int main(void)
 
     config.channels  = NRF_I2S_CHANNELS_STEREO;
     config.mck_setup = NRF_I2S_MCK_32MDIV21;
+    // config.mck_setup = NRF_I2S_MCK_32MDIV42;
     config.ratio = NRF_I2S_RATIO_96X;
+    config.sample_width = NRF_I2S_SWIDTH_16BIT;
     err_code = nrf_drv_i2s_init(&config, data_handler);
     APP_ERROR_CHECK(err_code);
 
@@ -246,7 +248,7 @@ int main(void)
         //     mp_block_to_fill = NULL;
         // }
         // file_done = simple_logger_read((uint8_t *) read_buff, BUF_SIZE) != 0;
-        // if (next_i2s_buff == 
+        // if (curr_i2s_buff == 
         // printf("Buffer one: ");
         // for (int i = 0; i < I2S_DATA_BLOCK_WORDS; i++) {
         //     printf("%x ", buffer_one.p_tx_buffer[i]);
