@@ -14,7 +14,7 @@
 #include "nrf_log_default_backends.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_serial.h"
-#include "nrf_drv_clock.h" //in legacy dir
+#include "nrf_drv_clock.h"
 #include "nrf_drv_spi.h"
 #include "nrf_sdh.h"
 #include "nrfx_gpiote.h"
@@ -23,12 +23,12 @@
 #include "gpio.h" 
 #include "display.h"
 #include "simple_logger.h"
+#include "app_scheduler.h"
 
 
 // *****************************************************************
 // ************************** VARIABLES ****************************
 // *****************************************************************
-bool interrupt;                 // not in use 
 bool GAMEON = false;
 bool gameon_button = false;     // same as gameon, change name later  
 bool DONE_PLAYING = false;      // indicator that music is done 
@@ -45,43 +45,30 @@ uint16_t BUFFER_SIZE = 8;
 uint16_t test_reading_buffer[8]; // BUFFER_SIZE
 
 APP_TIMER_DEF(BPM240);          // timer for BPM readings
-APP_TIMER_DEF(SAMPLING);        // timer for song sampling 
+// APP_TIMER_DEF(SAMPLING);        // timer for song sampling
+// ^ We don't need this one, SD lib takes care of it 
 
-// declare variables used for sd card - move them if necessary 
+// declare variables used for sd card 
 const char filename[] = "testfile.txt";
-const char permissions[] = "a,r"; // w = write, a = append, r = read (?)
-char read_buff [9];
+const char permissions[] = "a,r"; // w = write, a = append, r = read
+#define READ_BUFFER_SIZE	32 // TODO: what's the maximum?
+char read_buff [READ_BUFFER_SIZE + 1];
+
 // *****************************************************************
 
 /* Interrupt Handler & Initiation from lab */
+void GPIOTE_IRQHandler(void) {
+    NRF_GPIOTE->EVENTS_IN[0] = 0;
 
-void SWI1_EGU1_IRQHandler(void) {
-    NRF_EGU1->EVENTS_TRIGGERED[0] = 0;
-    // NRF_GPIOTE->EVENTS_IN[0] = 0; // from hardware IRQHandler 
-    printf("\n*********** GAME ON ***********\n");
-    display_write("GAME ON", DISPLAY_LINE_0);
-    display_write("(*_*)", DISPLAY_LINE_1);
-    nrf_delay_ms(2000);//for demo
-    }
+    gpio_config(23, 1);
+    gpio_clear(23);
+    nrf_delay_ms(500);
+    gpio_set(23);
 
-    void software_interrupt_init(void) {
-        NRF_EGU1->INTENSET = 0x1;
-        NVIC_EnableIRQ(SWI1_EGU1_IRQn);
-    }
-
-    void software_interrupt_generate(void) {
-        NRF_EGU1->TASKS_TRIGGER[0] = 1;
-    }
-
+    printf("\n========== Hardware Interreupt Getting Called ==========\n");
+}
 
 /* Clock setup - code from Nordic forum */
-
-static void lfclk_request(void) {
-    error_code = nrf_drv_clock_init();
-    APP_ERROR_CHECK(error_code);
-
-    nrf_drv_clock_lfclk_request(NULL);
-}
 
 // ignore p_context function, but you can assign a fn and do the work 
 // in case of timer timeout. (Most likely we won't use this one)
@@ -96,7 +83,7 @@ static void bpm_timer_timeout(void * p_context) {
    Scores up if two values match */
 
 // TODO: how much will it read? Do some calculation for sampling rate 
-static void bpm_timer_tick_callback(void * p_context)
+static void bpm_read_callback(void * p_context)
     {
     UNUSED_VARIABLE(p_context);
     printf("tick being called ... \n");
@@ -132,13 +119,16 @@ void rtt_init(void) {
 }
 
 // Initialize start button and hardware interrupt,  pin #28.
-void btn_init(void) {
-    gpio_config(28, 0); // button right next to switch on Buckler
+// gpio config done here. Separate to other file later on.
+void start_button_init(void) {
+    gpio_config(28, 0); // set a button near switch as an starting button, taking an input
+    // TODO: set up for the hardware interrupt 
 
     NRF_GPIOTE->CONFIG[0] |= 0x00021c01;
     NRF_GPIOTE->INTENSET |= 1;
     NVIC_EnableIRQ(GPIOTE_IRQn);
 
+	///may not need this part 
     // software interrupt 
     software_interrupt_init();
     NVIC_EnableIRQ(SWI1_EGU1_IRQn);
@@ -146,89 +136,32 @@ void btn_init(void) {
     // set the same priority 
     NVIC_SetPriority(GPIOTE_IRQn, 0);
     NVIC_SetPriority(SWI1_EGU1_IRQn, 0);
+
+    printf("start button config initialized!\n");
 }
 
 // timer starts along with start with song play.
 // I'm not sure what lfclk_request exactly does, it might be need to call 
 // for other timer/interrupt. Feel free to take this out and put wherever.
 void bpm_timer_init(void) {
-    lfclk_request();
 
-    error_code = app_timer_init();
+    // this function below stops RTC and resumes at the end of the function call 
+	error_code = app_timer_init(); // queue size and something else, chose arbitrarilly now 
     APP_ERROR_CHECK(error_code);
     printf("Timer initialized!\n");
     error_code = app_timer_create(&BPM240, APP_TIMER_MODE_REPEATED, 
-                                           bpm_timer_tick_callback);
+                                           		bpm_read_callback);
     APP_ERROR_CHECK(error_code);
 
-    // @(Timer Macro, Ticks before timeout, Timeout callback fn)
-    // APP_TIMER_TICKS(250) = 8192 = 2^13 
-    error_code = app_timer_start(BPM240, APP_TIMER_TICKS(250), NULL); 
+    // fires in every 250 ms
+    error_code = app_timer_start(BPM240, APP_TIMER_TICKS(250), NULL);
     APP_ERROR_CHECK(error_code);
 }
 
-
-// *****************************************************************
-// **************************** MAIN *******************************
-// *****************************************************************
-
-int main(void) {
-    error_code = NRF_SUCCESS;
-    rtt_init();
-    btn_init();
-
-    // Comment: I tried to move this code to separate fn but then 
-    // lcd started malfunctioning. Couldn't find what causes this. 
-    // Also lots of modifications will be required 
-    // when we add more peripherals 
-
-    // Initialize SPI protocol for display 
-    // fn defined in nrf_drv_spi.h (id) - 
-    // Doesn't have MISO bc it only uses as output 
-    nrf_drv_spi_t spi_instance2 = NRF_DRV_SPI_INSTANCE(1);
-    nrf_drv_spi_config_t spi_config_lcd = {
-      .sck_pin = BUCKLER_LCD_SCLK,
-      .mosi_pin = BUCKLER_LCD_MOSI,
-      .miso_pin = BUCKLER_LCD_MISO,
-      .ss_pin = BUCKLER_LCD_CS,
-      .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
-      .orc = 0,
-      .frequency = NRF_DRV_SPI_FREQ_4M,
-      .mode = NRF_DRV_SPI_MODE_2, // active high/falling edge
-      .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
-    };
-    
-    error_code = nrf_drv_spi_init(&spi_instance2, &spi_config_lcd, NULL, NULL);
-    APP_ERROR_CHECK(error_code);
-    display_init(&spi_instance2);
-    printf("Display initialized!\n");
-
-    display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);
-    display_write("PLAY? ->", DISPLAY_LINE_1);
-
-
-    // SD card init
-    // the original (from the example) didn't use SPI. 
-    // re-using LCD gpios??? should it short later on?
-
-/*
-    nrf_drv_spi_t spi_instance_sd = NRF_DRV_SPI_INSTANCE(1); // on the same port?
-    nrf_drv_spi_config_t spi_config_sd = {
-      .sck_pin = BUCKLER_LCD_SCLK,
-      .mosi_pin = BUCKLER_LCD_MOSI,
-      .miso_pin = BUCKLER_SD_MISO,
-      .ss_pin = BUCKLER_SD_CS,
-      .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
-      .orc = 0,
-      .frequency = NRF_DRV_SPI_FREQ_4M,
-      .mode = NRF_DRV_SPI_MODE_3, // active low/faliing edge
-      .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
-    };
-    
-    error_code = nrf_drv_spi_init(&spi_instance_sd, &spi_config_sd, NULL, NULL);
-    APP_ERROR_CHECK(error_code);*/
-
-  // Enable SoftDevice (used to get RTC running)
+// Initialize SD Card 
+// the original (from the example) didn't use SPI. 
+void gpio_sdcard_init(void) {
+  	// Enable SoftDevice (used to get RTC running)
 	nrf_sdh_enable_request();
 
 	// Initialize GPIO driver
@@ -241,7 +174,7 @@ int main(void) {
 
     nrf_gpio_cfg_output(BUCKLER_SD_ENABLE);
   	nrf_gpio_cfg_output(BUCKLER_SD_CS);
-  	nrf_gpio_cfg_output(BUCKLER_SD_MOSI); //share the same LCD 
+  	nrf_gpio_cfg_output(BUCKLER_SD_MOSI); //share the same LCD ...
   	nrf_gpio_cfg_output(BUCKLER_SD_SCLK); // share the same LCD
   	nrf_gpio_cfg_input(BUCKLER_SD_MISO, NRF_GPIO_PIN_NOPULL);
 
@@ -249,16 +182,61 @@ int main(void) {
   	nrf_gpio_pin_set(BUCKLER_SD_CS);
 
     printf("SD card initialized!\n");
+}
 
-    // TODO: error 
+// *****************************************************************
+// **************************** MAIN *******************************
+// *****************************************************************
+
+int main(void) {
+    error_code = NRF_SUCCESS;
+    rtt_init();
+    start_button_init();
+
+    // Initialize Display 
+    nrf_drv_spi_t spi_instance2 = NRF_DRV_SPI_INSTANCE(2);
+    nrf_drv_spi_config_t spi_config_lcd = {
+      .sck_pin = BUCKLER_LCD_SCLK,
+      .mosi_pin = BUCKLER_LCD_MOSI,
+      .miso_pin = BUCKLER_LCD_MISO,
+      .ss_pin = BUCKLER_LCD_CS,
+      .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
+      .orc = 0,
+      .frequency = NRF_DRV_SPI_FREQ_4M,
+      .mode = NRF_DRV_SPI_MODE_2, 
+      .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
+    };
+    
+    error_code = nrf_drv_spi_init(&spi_instance2, &spi_config_lcd, NULL, NULL);
+    APP_ERROR_CHECK(error_code);
+    display_init(&spi_instance2);
+    printf("Display initialized!\n");
+
+    display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);
+    display_write("PLAY? ->", DISPLAY_LINE_1);
+
+    // whait till hardware interrupt happens
+    do {
+    	printf("please work\n");
+    	__WFI();
+    	printf("God responded... \n");
+
+    	gameon_button = true;
+    	GAMEON = true;
+    } while(!gameon_button);
+
+    // TODO: can't take the file that I created through the SD card
+    gpio_sdcard_init();
+
   	// Start file
   	error_code = simple_logger_init(filename, permissions);
+  	printf("error code: %d\n", error_code);
   	APP_ERROR_CHECK(error_code);
 
   	// read data into buffer
 	printf("Reading buffer\n");
-	simple_logger_read((uint8_t *)read_buff, 8);
-	read_buff[8] = '\0';
+	simple_logger_read((uint8_t *)read_buff, READ_BUFFER_SIZE);
+	read_buff[READ_BUFFER_SIZE] = '\0';
 
 	printf("Contents: %s\n\n", read_buff);
 
@@ -272,64 +250,42 @@ int main(void) {
     // ************************** GAME LOOP ****************************
     // *****************************************************************
 
-    /* Start when button is pressed (longer than 0.5s pressed)
-     * button pressed -> timer start, song play, reading the data, ... */
+	// Loop until it receives signals/inputs indicating the end of song
+	// TODO: How do we implement the end of song signal? 
+	// We could either hard-code by taking the length of the song and 
+	// compare that with timer reading. I think that would be the easiest
+	while (!DONE_PLAYING) { 
 
-    uint16_t read_input;
-    char test[16];
+		printf("looping while loop\n");
 
-    // for test purpose, fill out the data vector 
-    for (int i = 0; i<256; i++) {
-        // fill in 0 1 0 1 ...
-        if ((i % 2)) {
-            test_readings[i] = 0;
-        } else {
-            test_readings[i] = 1;
-        } 
-    }
+		// Initiate timers. It is intended to get called only once when
+		// the start button is pressed. 
+		if (gameon_button) {
 
-    // Wait for start button pressed
-    do {
-        printf("waiting for the button input...\n");
-        __WFI();
-        //gameon_button = gpio_read(28);
-      	//printf("%d\n", gameon_button);
-        printf("received the input...\n");
-        gameon_button = true;
-        software_interrupt_generate();
-    } while (!gameon_button);
+			printf("\n*********** GAME ON ***********\n");
+			display_write("GAME ON", DISPLAY_LINE_0);
+			display_write("(*_*)", DISPLAY_LINE_1);
+			nrf_delay_ms(2000);//for demo
 
-   // Loop until it receives signals/inputs indicating the end of song
-   // TODO: How do we implement the end of song signal? 
-   // We could either hard-code by taking the length of the song and 
-   // compare that with timer reading. I think that would be the easiest
-   while (!DONE_PLAYING) { 
-
-      printf("looping while loop\n");
-
-      // Initiate timers. It is intended to get called only once when
-      // the start button is pressed. 
-      if (gameon_button) {
-
-          GAMEON = true; // triggers the main game loop
-          bpm_timer_init(); // initiate BPM timer (read data at BPM)
-          gameon_button = false;
-      }
+			GAMEON = true; // triggers the main game loop
+			bpm_timer_init(); // initiate BPM timer (read data at BPM)
+			// ^ gets called after sdh initiated, so should be fine 
+			gameon_button = false;
+		}
 
     // main game loop (?)
       if (GAMEON) {
 
         printf("\nbuffer_idx: %d\n", buffer_idx);
 
-
           // read again when read_buffer indicates it has reached its maximum
           if (buffer_idx == 0) {
               for (int i = 0; i < 8; i++) {
-                  test_reading_buffer[i] = test_readings[BUFFER_SIZE*read_idx + i];
+                  test_reading_buffer[i] = read_buff[BUFFER_SIZE*read_idx + i];
 
                   printf("i*read_idx + i: %d\n", BUFFER_SIZE*read_idx + i);
                   printf("reading test file, buffer %d\t%d\n", \
-                          test_readings[BUFFER_SIZE*read_idx + i], \
+                          read_buff[BUFFER_SIZE*read_idx + i], \
                           test_reading_buffer[i]);
               }
               read_idx++; // move it for next
