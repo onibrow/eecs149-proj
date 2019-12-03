@@ -27,7 +27,7 @@
     .mode         = NRF_DRV_SPI_MODE_0,                      \
     .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,         \
 }
-#define NUM_LEDS 32 	// CHANGE THIS FOR CORRECT NUMBER OF LEDS
+#define NUM_LEDS 1 		// CHANGE THIS FOR CORRECT NUMBER OF LEDS
 
 #define NUM_STRIPS 2 	// CHANGE THIS FOR CORRECT NUMBER OF STRIPS
 
@@ -107,3 +107,9 @@ void show(int8_t id);
  * @param	color 	rgb_color_t value to set LED to
  */
 void setLED(int8_t id, int pos, rgb_color_t color);
+
+
+/*
+ * Function that prints the current state of the LED strips
+ */
+void printState();

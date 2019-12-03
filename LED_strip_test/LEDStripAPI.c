@@ -128,3 +128,18 @@ void setLED(int8_t id, int pos, rgb_color_t color) {
 	}
 	strips[id][pos] = color;
 }
+
+/*
+ * Function that prints the current state of the LED strips
+ */
+void printState() {
+	for (int i = 0; i < NUM_LEDS; i++) {
+		for (int j = 0; j < NUM_STRIPS; j++) {
+			printf("| %d ", strips[j][i].r);
+			printf("%d ", strips[j][i].g);
+			printf("%d |", strips[j][i].b);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}

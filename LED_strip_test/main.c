@@ -89,19 +89,35 @@ int main(void) {
 	int i = 0;
 
 	while(1) {
-		if (i%7 == 0) {
-			push_next_light(0, (rgb_color_t) {.b = 255, .g = 0, .r = 0});
-			push_next_light(1, (rgb_color_t) {.b = 255, .g = 255, .r = 0});
-		} else if (i%7 == 1) {
-			push_next_light(0, (rgb_color_t) {.b = 0, .g = 255, .r = 0});
-			push_next_light(1, (rgb_color_t) {.b = 0, .g = 127, .r = 255});
+		printState();
+
+		/* For a single LED: */
+		if (i%3 == 0) {
+			push_next_light(0, (rgb_color_t) {.b=255, .g=0, .r=0});
+			push_next_light(1, (rgb_color_t) {.b=255, .g=0, .r=0});
+		} else if (i%3 == 1) {
+			push_next_light(0, (rgb_color_t) {.b=0, .g=255, .r=0});
+			push_next_light(1, (rgb_color_t) {.b=0, .g=255, .r=0});
 		} else {
-			push_next_light(0, (rgb_color_t) DARK);
-			push_next_light(1, (rgb_color_t) DARK);
+			push_next_light(0, (rgb_color_t) {.b=0, .g=0, .r=255});
+			push_next_light(1, (rgb_color_t) {.b=0, .g=0, .r=255});
 		}
-		
-		show(0);
+
+		/* For musltiple LEDs */
+		// if (i%5 == 0) {
+		// 	push_next_light(0, (rgb_color_t) {.b = 255, .g = 0, .r = 0});
+		// 	push_next_light(1, (rgb_color_t) {.b = 255, .g = 255, .r = 0});
+		// } else if (i%5 == 1) {
+		// 	push_next_light(0, (rgb_color_t) {.b = 0, .g = 255, .r = 0});
+		// 	push_next_light(1, (rgb_color_t) {.b = 0, .g = 127, .r = 255});
+		// } else {
+		// 	push_next_light(0, (rgb_color_t) DARK);
+		// 	push_next_light(1, (rgb_color_t) DARK);
+		// }
+
 		show(1);
+		show(0);
+		// show(1);
 
 		NRF_LOG_FLUSH();
 
@@ -109,7 +125,7 @@ int main(void) {
 			i = 0;
 		}
 
-		nrf_delay_ms(100);
+		nrf_delay_ms(300);
 	}
 
 /* LOOP USED FOR LINKED LIST IMPLEMENTATION OF API *******************************************************
