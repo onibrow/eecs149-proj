@@ -92,6 +92,12 @@ BOARD_SOURCES += \
 	ff.c\
 	nrf_drv_spi.c\
 	app_sdcard.c\
+	nrfx_spi.c\
+	nrfx_spim.c\
+	nrf_sdh.c\
+	nrfx_gpiote.c\
+	app_scheduler.c\
+	app_util_platform.c\
 	#diskio_blkdev.c\
 	#nrf_block_dev_sdc.c\
 
