@@ -57,6 +57,9 @@ char read_buff [READ_BUFFER_SIZE + 1];
 // *****************************************************************
 
 /* Interrupt Handler & Initiation from lab */
+// if multiple defined error occurs, comment out 
+// #define nrfx_gpiote_irq_handler     GPIOTE_IRQHandler
+// in nrfx_irqs_nrf52832.h 
 void GPIOTE_IRQHandler(void) {
     NRF_GPIOTE->EVENTS_IN[0] = 0;
 
@@ -122,20 +125,11 @@ void rtt_init(void) {
 // gpio config done here. Separate to other file later on.
 void start_button_init(void) {
     gpio_config(28, 0); // set a button near switch as an starting button, taking an input
-    // TODO: set up for the hardware interrupt 
 
     NRF_GPIOTE->CONFIG[0] |= 0x00021c01;
     NRF_GPIOTE->INTENSET |= 1;
     NVIC_EnableIRQ(GPIOTE_IRQn);
-
-	///may not need this part 
-    // software interrupt 
-    software_interrupt_init();
-    NVIC_EnableIRQ(SWI1_EGU1_IRQn);
-
-    // set the same priority 
     NVIC_SetPriority(GPIOTE_IRQn, 0);
-    NVIC_SetPriority(SWI1_EGU1_IRQn, 0);
 
     printf("start button config initialized!\n");
 }
@@ -145,7 +139,7 @@ void start_button_init(void) {
 // for other timer/interrupt. Feel free to take this out and put wherever.
 void bpm_timer_init(void) {
 
-    // this function below stops RTC and resumes at the end of the function call 
+    // (good to know) this function below stops RTC and resumes at the end of the function call 
 	error_code = app_timer_init(); // queue size and something else, chose arbitrarilly now 
     APP_ERROR_CHECK(error_code);
     printf("Timer initialized!\n");
@@ -293,7 +287,7 @@ int main(void) {
 
           // for now, stop after 100000 ticks 
           //printf("timer: %d\n", app_timer_cnt_get());
-        	if (app_timer_cnt_get() >= 100000) {
+        	if (app_timer_cnt_get() >= APP_TIMER_TICKS(3000)) {
         		  DONE_PLAYING = true;
         	}
       }
