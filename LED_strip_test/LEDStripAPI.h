@@ -27,9 +27,9 @@
     .mode         = NRF_DRV_SPI_MODE_0,                      \
     .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,         \
 }
-#define NUM_LEDS 1 		// CHANGE THIS FOR CORRECT NUMBER OF LEDS
+#define NUM_LEDS 15 		// CHANGE THIS FOR CORRECT NUMBER OF LEDS
 
-#define NUM_STRIPS 2 	// CHANGE THIS FOR CORRECT NUMBER OF STRIPS
+#define NUM_STRIPS 3	// CHANGE THIS FOR CORRECT NUMBER OF STRIPS
 
 #define MUX_PIN_A 4 	// CHANGE THIS FOR CORRECT MUX PIN A
 #define MUX_PIN_B 3 	// CHANGE THIS FOR CORRECT MUX PIN B
@@ -46,17 +46,17 @@ static uint8_t       m_rx_buf[NUM_LEDS*3];    		/**< RX buffer. */
 /* rgb_color_t datatype for storing color values */
 /* NOTE: colors need to be declared in reverse order (i.e. b, g, r) */
 typedef struct rgb_color_t {
-	uint8_t b;
-	uint8_t g;
 	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 } rgb_color_t;
 
 /* rgb_color_t value used to signify LED turned off */
 #define DARK	\
 {				\
-	.b = 0,		\
-	.g = 0,		\
 	.r = 0,		\
+	.g = 0,		\
+	.b = 0,		\
 }
 
 static rgb_color_t strips[NUM_STRIPS][NUM_LEDS];

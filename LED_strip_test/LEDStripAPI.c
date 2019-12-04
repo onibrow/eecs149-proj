@@ -98,9 +98,9 @@ void show(int8_t id) {
 		if (++i >= NUM_LEDS) {
 			i = 0;
 		}
-		m_tx_buf[count*3] = 	strips[id][i].r;
+		m_tx_buf[count*3] = 	strips[id][i].b;
 		m_tx_buf[count*3 + 1] = strips[id][i].g;
-		m_tx_buf[count*3 + 2] = strips[id][i].b;
+		m_tx_buf[count*3 + 2] = strips[id][i].r;
 		count++;
 	}
 
@@ -109,6 +109,9 @@ void show(int8_t id) {
 	while (!spi_xfer_done) {
     	__WFE();
     }
+
+    // nrf_gpio_pin_write(MUX_PIN_A, 1);
+    // nrf_gpio_pin_write(MUX_PIN_B, 1);
     return;
 }
 
