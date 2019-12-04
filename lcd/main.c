@@ -15,7 +15,7 @@
 #include "nrf_pwr_mgmt.h"
 #include "nrf_serial.h"
 #include "nrf_drv_clock.h" //in legacy dir
-#include "nr_drv_spi.h"
+#include "nrf_drv_spi.h"
 
 #include "buckler.h"
 #include "gpio.h" // consider changing it to gpio 
@@ -177,6 +177,7 @@ int main(void) {
     // when we add more peripherals 
 
     // Initialize SPI protocol for display 
+    // fn defined in nrf_drv_spi.h (id) - 
     nrf_drv_spi_t spi_instance2 = NRF_DRV_SPI_INSTANCE(1);
     nrf_drv_spi_config_t spi_config = {
       .sck_pin = BUCKLER_LCD_SCLK,

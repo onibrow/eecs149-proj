@@ -45,42 +45,23 @@ int main(void) {
 
   printf("GPIO initialized ...\n");
 
-/*
-    // Initialize SPI protocol for display 
-    nrf_drv_spi_t spi_instance2 = NRF_DRV_SPI_INSTANCE(2);
-    nrf_drv_spi_config_t spi_config = {
-      .sck_pin = BUCKLER_LCD_SCLK,
-      .mosi_pin = BUCKLER_LCD_MOSI,
-      .miso_pin = BUCKLER_LCD_MISO,
-      .ss_pin = BUCKLER_LCD_CS,
-      .irq_priority = NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
-      .orc = 0,
-      .frequency = NRF_DRV_SPI_FREQ_4M,
-      .mode = NRF_DRV_SPI_MODE_2,
-      .bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST
-    };
-    
-    error_code = nrf_drv_spi_init(&spi_instance2, &spi_config, NULL, NULL);
-    APP_ERROR_CHECK(error_code);
-    display_init(&spi_instance2);
-*/
 
   // Configure GPIOs
   nrf_gpio_cfg_output(BUCKLER_SD_ENABLE);
   nrf_gpio_cfg_output(BUCKLER_SD_CS);
-  nrf_gpio_cfg_output(BUCKLER_SD_MOSI);
-  nrf_gpio_cfg_output(BUCKLER_SD_SCLK);
-  nrf_gpio_cfg_input(BUCKLER_SD_MISO, NRF_GPIO_PIN_NOPULL);
+  nrf_gpio_cfg_output(BUCKLER_SD_MOSI); // change to lcd mosi later
+  nrf_gpio_cfg_output(BUCKLER_SD_SCLK); // change to lcd mosi later
+  nrf_gpio_cfg_input(BUCKLER_SD_MISO, NRF_GPIO_PIN_NOPULL); // change to lcd mosi later
 
   nrf_gpio_pin_set(BUCKLER_SD_ENABLE);
   nrf_gpio_pin_set(BUCKLER_SD_CS);
 
-    printf("SD card initialized!\n");
+  printf("SD card initialized!\n");
 
   // Initialize SD card
   //const char filename[] = "TESTFILE.LOG";
   const char filename[] = "testfile.txt";
-  const char permissions[] = "a,r"; // w = write, a = append, r = read (?)
+  const char permissions[] = "a,r"; // w = write, a = append, r = read
   char read_buff [9];
 
 
