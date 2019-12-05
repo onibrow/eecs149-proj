@@ -93,10 +93,11 @@ void push_next_light(int8_t id, rgb_color_t color);
 
 /*
  * Function to initiate SPI transfer and display cnages to LED strip
+ * Returns true when the oldest LED is on
 
  * @param	id 		 	strip to initiate transfer
  */
-void show(int8_t id);
+bool show(int8_t id);
 
 
 /*
