@@ -44,18 +44,12 @@ uint16_t buffer_idx 		= 0;
 #define BEATMAP_SIZE		256
 
 char test_reading_buffer	[BUFFER_SIZE][3]; 
-char read_buff 				[BUFFER_SIZE + 1];  // \0 for SD Card reading
 char beatmap 				[BEATMAP_SIZE][3];	// [size of the beatmap][three inputs]
-
-// declare variables used for sd card 
-const char filename[] 		= "testfile.txt";
-const char permissions[] 	= "a,r"; // w = write, a = append, r = read
 
 // consider merging these to buckler.h 
 #define BopIt_BUTTON0 	 	NRF_GPIO_PIN_MAP(0, 11)
 #define BopIt_BUTTON1 		NRF_GPIO_PIN_MAP(0, 12)
 #define BopIt_BUTTON2 	 	NRF_GPIO_PIN_MAP(0, 13)
-
 #define BopIt_OUTPUT		NRF_GPIO_PIN_MAP(0, 31)
 
 #define SONG_LENGTH_MS		APP_TIMER_TICKS(5000)
@@ -80,51 +74,28 @@ static void bpm_timer_timeout(void * p_context) {
 // TODO: how much will it read? Do some calculation for sampling rate 
 static void bpm_read_callback(void * p_context){
     UNUSED_VARIABLE(p_context);
-    printf("BPM Read Callback Being Called ... \n");
-
-	printf("looping while loop\n");
-
-	// Write the buffer from large size of beatmap file, can be done in separate fn or callback 
-	// idk if we have to worry about data race here, but be aware 
-
-	// something do with led 
-	printf("\nbuffer_idx: %d\n", buffer_idx);
-
-	if (buffer_idx == 0) {
-	    for (int i = 0; i < 8; i++) {
-	        test_reading_buffer[i][0] = beatmap [BUFFER_SIZE*read_idx + i][0];
-	        test_reading_buffer[i][1] = beatmap [BUFFER_SIZE*read_idx + i][1];
-	        test_reading_buffer[i][2] = beatmap [BUFFER_SIZE*read_idx + i][2];
-	    }
-	    read_idx++; // move it for next
-	}
-
-		
-
     bool display_good = false;
-
-    //TODO: connect the inputs to bop it and make it work 
-    // later on, delete the variables and just compare the values directly from fn 
+    printf("BPM Read Callback Being Called ... \n");
 
     printf("INPUT readings:   Button0: %d, Button1: %d, Button2: %d\n", \
     	 	btn[0], btn[1], btn[2]);
 
     printf("BEATMAP readings: Button0: %d, Button1: %d, Button2: %d\n", \
-    	 	test_reading_buffer[buffer_idx][0], \
-    	 	test_reading_buffer[buffer_idx][1], \
-    	 	test_reading_buffer[buffer_idx][2]);
+    	 	beatmap[buffer_idx][0], \
+    	 	beatmap[buffer_idx][1], \
+    	 	beatmap[buffer_idx][2]);
 
-    if (btn[0] == test_reading_buffer[buffer_idx][0]) {
+    if (btn[0] == beatmap[buffer_idx][0]) {
     	display_good = true; 
     	score += 1;
     	printf("btn 0 hit \n");
     }
-    if (btn[1] == test_reading_buffer[buffer_idx][1]) {
+    if (btn[1] == beatmap[buffer_idx][1]) {
     	display_good = true;  
     	score += 1;
     	printf("btn 1 hit \n");
     }
-    if (btn[2] == test_reading_buffer[buffer_idx][2]) {
+    if (btn[2] == beatmap[buffer_idx][2]) {
     	display_good = true; 
     	score += 1;
     	printf("btn 2 hit \n");
@@ -145,7 +116,7 @@ static void bpm_read_callback(void * p_context){
     }
 
     // reset if it reaches the end, increment otherwise 
-    (buffer_idx == BUFFER_SIZE - 1) ? buffer_idx = 0 : buffer_idx++; 
+    buffer_idx ++;
 }
 
 // simple, test beatmap generator 
@@ -156,13 +127,6 @@ void generate_beatmap(void) {
     	beatmap[i][1] = 1;
     	beatmap[i][2] = 1;
     }
-/*
-	printf("test print for generate_beatmap: \n");
-	for (int i = 0; i < 16; i++) {
-	    printf("BEATMAP readings: Button0: %d, Button1: %d, Button2: %d\n", \
-	 	beatmap[i][0], beatmap[i][1], beatmap[i][2]);
-	}
-	printf("\n");*/
 }
 
 // *************************************************************************
@@ -186,10 +150,11 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 		display_write("GAME ON", DISPLAY_LINE_0);
 		display_write("(*_*)", DISPLAY_LINE_1);
 
+        nrf_delay_ms(2000); // give some time to get ready 
+
     	gameon_button = true;
 		bpm_timer_init();
 
-		nrf_delay_ms(2000);//for demo
 
 	} else {
 		printf("button interrupt getting called ... \n");
