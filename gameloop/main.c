@@ -34,15 +34,13 @@
 ret_code_t error_code;          		// error checking - variously used 
 APP_TIMER_DEF(BPM240);          		// timer for BPM readings
 
-bool gameon_button 			= false;    // same as gameon, change name later  
-bool DONE_PLAYING 			= false;    // indicator that music is done 
 uint16_t score 				= 0;        // Record the score 
 char score_str[16];             		// convert score to str for display
 
 uint16_t read_idx 			= 0;        // Indicator which reading to read for buffer
 uint16_t buffer_idx 		= 0;     
 #define BUFFER_SIZE 		8     
-#define BEATMAP_SIZE		256
+#define BEATMAP_SIZE		960
 
 char test_reading_buffer	[BUFFER_SIZE][3]; 
 char beatmap 				[BEATMAP_SIZE][3];	// [size of the beatmap][three inputs]
@@ -53,10 +51,18 @@ char beatmap 				[BEATMAP_SIZE][3];	// [size of the beatmap][three inputs]
 #define BopIt_BUTTON2 	 	NRF_GPIO_PIN_MAP(0, 13)
 #define BopIt_OUTPUT		NRF_GPIO_PIN_MAP(0, 14)
 
-#define SONG_LENGTH_MS		APP_TIMER_TICKS(5000)
+#define SONG_LENGTH_MS		APP_TIMER_TICKS(240000)
 
+typedef enum {
+	NOPLAY,
+	PLAY
+} states_t;
+
+states_t game;
 // readings 
 uint8_t btn[3];
+
+bool onbeat;
 
 // *************************************************************************
 
@@ -85,7 +91,8 @@ static void bpm_read_callback(void * p_context){
     	 	beatmap[buffer_idx][0], beatmap[buffer_idx][1], beatmap[buffer_idx][2]);
 
 
-    // led
+    // led print test
+    // TODO: interrupt issue 
 	if (beatmap[buffer_idx][0] == 1) {
 		push_next_light(0, (rgb_color_t) {.r = 255, .g = 32, .b = 0});
 	} else {
@@ -103,52 +110,57 @@ static void bpm_read_callback(void * p_context){
 	}
 
 	
-		show(0);
-		show(1);
-		show(2);
+	show(0);
+	show(1);
+	show(2);
 
+	// compare the inputs and beatmap 
+	if (onbeat) {
+	    if (btn[0] == beatmap[buffer_idx][0]) {
+	    	display_good = true; 
+	    	score += 1;
+	    	printf("btn 0 hit \n");
+	    }
+	    if (btn[1] == beatmap[buffer_idx][1]) {
+	    	display_good = true;  
+	    	score += 1;
+	    	printf("btn 1 hit \n");
+	    }
+	    if (btn[2] == beatmap[buffer_idx][2]) {
+	    	display_good = true; 
+	    	score += 1;
+	    	printf("btn 2 hit \n");
+	    }
 
-    if (btn[0] == beatmap[buffer_idx][0]) {
-    	display_good = true; 
-    	score += 1;
-    	printf("btn 0 hit \n");
-    }
-    if (btn[1] == beatmap[buffer_idx][1]) {
-    	display_good = true;  
-    	score += 1;
-    	printf("btn 1 hit \n");
-    }
-    if (btn[2] == beatmap[buffer_idx][2]) {
-    	display_good = true; 
-    	score += 1;
-    	printf("btn 2 hit \n");
-    }
-
-    // buffer storing & reading test
-    // read 8 data at a time out of 256 for test purpose
-
-    if (display_good) {
-        display_write("H I T !", DISPLAY_LINE_0);
-        printf("H I T !\n");
-        // maybe print out the score -> too much function call? 
-
-    } else {
-        display_write("MISS T_T", DISPLAY_LINE_0);
-        display_write("...", DISPLAY_LINE_1);
-        printf("MISS T_T\n");
-    }
-
-    // reset if it reaches the end, increment otherwise 
+	    if (display_good) {
+	        display_write("H I T !", DISPLAY_LINE_0);
+	        printf("H I T !\n");
+	    } else {
+	        display_write("MISS T_T", DISPLAY_LINE_0);
+	        display_write("...", DISPLAY_LINE_1);
+	        printf("MISS T_T\n");
+	    }
+	}
     buffer_idx ++;
+    btn[0] = 0;
+    btn[1] = 0;
+    btn[2] = 0;
+    onbeat ^= 1;
 }
 
 // simple, test beatmap generator 
 void generate_beatmap(void) {
 
     for (int i = 0; i < BEATMAP_SIZE; i++) {
-    	beatmap[i][0] = 1;
-    	beatmap[i][1] = 1;
-    	beatmap[i][2] = 1;
+    	if (i % 8 == 0) {
+	    	beatmap[i][0] = 1;
+	    	beatmap[i][1] = 1;
+	    	beatmap[i][2] = 1;
+	    } else {
+	    	beatmap[i][0] = 0;
+	    	beatmap[i][1] = 0;
+	    	beatmap[i][2] = 0;
+	    }
     }
 }
 
@@ -167,30 +179,35 @@ static void rtt_init(void) {
 
 static void buttons_interrupt_handler(uint8_t btn_id) {
 
-    if (!gameon_button) {
-		printf("\n*********** GAME ON ***********\n");
-    	printf("start button pressed  ... \n");
-		display_write("GAME ON", DISPLAY_LINE_0);
-		display_write("(*_*)", DISPLAY_LINE_1);
+	switch (game) {
+	    case NOPLAY: {
+			printf("\n*********** GAME ON ***********\n");
+	    	printf("start button pressed  ... \n");
+			display_write("GAME ON", DISPLAY_LINE_0);
+			display_write("(*_*)", DISPLAY_LINE_1);
 
-        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
+	        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
 
-        nrf_delay_ms(2000); // give some time to get ready 
-        
-        nrf_gpio_pin_write(BopIt_OUTPUT, 0);
+	        nrf_delay_ms(100); // give some time to get ready 
+	        
+	        nrf_gpio_pin_write(BopIt_OUTPUT, 0);
 
-    	gameon_button = true;
-		bpm_timer_init();
-
-
-	} else {
-		printf("button interrupt getting called ... \n");
-		// have to check individual inputs 
-		// could be a timer, sync issue later. maybe better to put in callback 
-		for (int i = 0; i < 3; i++) {
-			btn[i] = app_button_is_pushed(i) || btn[i] ? 1 : 0;
+	    	game = PLAY;
+			bpm_timer_init();
+			break;
+		} 
+		case PLAY: {
+			printf("button interrupt getting called ... \n");
+			// have to check individual inputs 
+			// could be a timer, sync issue later. maybe better to put in callback 
+			for (int i = 0; i < 3; i++) {
+				btn[i] = app_button_is_pushed(i) || btn[i] ? 1 : 0;
+			}
+			break;
 		}
 	}
+	
+	// printf("button pressed\n\n");
 }
 
 static void buttons_init(void) {
@@ -206,9 +223,9 @@ static void buttons_init(void) {
 
 
 	static const app_button_cfg_t BUTTONS[] = {
-	    {BopIt_BUTTON0, APP_BUTTON_ACTIVE_HIGH, NRF_GPIO_PIN_NOPULL, buttons_interrupt_handler},
-	    {BopIt_BUTTON1, APP_BUTTON_ACTIVE_HIGH, NRF_GPIO_PIN_NOPULL, buttons_interrupt_handler},
-	    {BopIt_BUTTON2, APP_BUTTON_ACTIVE_HIGH, NRF_GPIO_PIN_NOPULL, buttons_interrupt_handler},
+	    {BopIt_BUTTON0, APP_BUTTON_PUSH, NRF_GPIO_PIN_NOPULL, buttons_interrupt_handler},
+	    {BopIt_BUTTON1, APP_BUTTON_PUSH, NRF_GPIO_PIN_NOPULL, buttons_interrupt_handler},
+	    {BopIt_BUTTON2, APP_BUTTON_PUSH, NRF_GPIO_PIN_NOPULL, buttons_interrupt_handler},
 	};
 
 	error_code = app_button_init(BUTTONS, 3, 50);
@@ -238,7 +255,7 @@ void bpm_timer_init(void) {
     APP_ERROR_CHECK(error_code);
 
     // fires in every 250 ms
-    error_code = app_timer_start(BPM240, APP_TIMER_TICKS(250), NULL);
+    error_code = app_timer_start(BPM240, APP_TIMER_TICKS(125), NULL);
     APP_ERROR_CHECK(error_code);
 }
 
@@ -248,6 +265,7 @@ void bpm_timer_init(void) {
 // *************************************************************************
 
 int main(void) {
+	game = NOPLAY;
 
     error_code = NRF_SUCCESS;
     rtt_init();
@@ -258,8 +276,6 @@ int main(void) {
 	nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(1); 
 	led_spi_init(&spi);
 	led_strips_init();
-
-
   	
     // Initialize Display ////////////////////////////////////////////////
     nrf_drv_spi_t spi_instance2 = NRF_DRV_SPI_INSTANCE(2);
@@ -280,43 +296,47 @@ int main(void) {
     display_init(&spi_instance2);
     printf("Display initialized!\n");
 
+    
+
     display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);
     display_write("PLAY? ->", DISPLAY_LINE_1);
+
+    onbeat = true;
+
+
     //////////////////////////////////////////////////////////////////////
 
-    // use WFI to wait until interrupt happens 
-    do {
-    	printf("please work\n");
-    	__WFI(); 
-    	printf("responded... \n");
+    while (true) {
+	    switch (game) {
+	    	case NOPLAY: {
+	    		__WFI(); 
+	    		break;
+	    	}
+	    
+			case PLAY: { 
+				if (app_timer_cnt_get() >= SONG_LENGTH_MS) {
 
-    } while(!gameon_button);
-
-
-    // *************************************************************************
-    // ****************************** GAME LOOP ********************************
-    // *************************************************************************
-
-	// Loop until it receives signals/inputs indicating the end of song
-	// (assigned as tick to trigger timeout)
-	while (!DONE_PLAYING) { 
-
-
-
-		/////////////////////////////////////////////////////////////////////////////////////////////
-
-	  	// adjust the time along with the length of the song 
-		if (app_timer_cnt_get() >= SONG_LENGTH_MS) {
-
-			APP_ERROR_CHECK(app_timer_stop(BPM240));
-			DONE_PLAYING = true;
-			
-	    }
-
-	    // TODO: interrupt to adjust the speed of the timer. Can use a callback function 
-		nrf_delay_ms(250); 
+					APP_ERROR_CHECK(app_timer_stop(BPM240));
+					game = NOPLAY;
+					clear_led_strip(0);
+    				clear_led_strip(1);
+    				clear_led_strip(2);
+    				show(0);
+    				show(1);
+    				show(2);
+			    }
+			    break;
+			}
+		}
     }
     
+    clear_led_strip(0);
+    clear_led_strip(1);
+    clear_led_strip(2);
+    show(0);
+    show(1);
+    show(2);
+
     // Print Score 
     printf("game is over...\n");
     nrf_delay_ms(1000);
