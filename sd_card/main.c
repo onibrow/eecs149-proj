@@ -31,9 +31,6 @@ int main(void) {
 
   NRF_LOG_DEFAULT_BACKENDS_INIT();
 
-
-  printf("Started SD card demo app...\n");
-
   // Enable SoftDevice (used to get RTC running)
   nrf_sdh_enable_request();
 
@@ -44,7 +41,6 @@ int main(void) {
   APP_ERROR_CHECK(error_code);
 
   printf("GPIO initialized ...\n");
-
 
   // Configure GPIOs
   nrf_gpio_cfg_output(BUCKLER_SD_ENABLE);
