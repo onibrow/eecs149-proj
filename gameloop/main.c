@@ -62,7 +62,12 @@ states_t game;
 // readings 
 uint8_t btn[3];
 
-bool onbeat;
+uint8_t onbeat;
+
+rgb_color_t bop_it_colors[3] = {
+	(rgb_color_t) {.r = 255, .g = 32,  .b = 0},
+	(rgb_color_t) {.r = 255, .g = 195, .b = 5},
+	(rgb_color_t) {.r = 0,   .g = 255, .b = 255}};
 
 // *************************************************************************
 
@@ -81,58 +86,33 @@ static void bpm_timer_timeout(void * p_context) {
 // TODO: how much will it read? Do some calculation for sampling rate 
 static void bpm_read_callback(void * p_context){
     UNUSED_VARIABLE(p_context);
-    bool display_good = false;
-    printf("BPM Read Callback Being Called ... \n");
 
-    printf("INPUT readings:   Button0: %d, Button1: %d, Button2: %d\n", \
+    bool display_good = false;
+    // printf("BPM Read Callback Being Called ... \n");
+    if (onbeat == 0) {
+    printf("\n\nINPUT:   Button0: %d, Button1: %d, Button2: %d\n", \
     	 	btn[0], btn[1], btn[2]);
 
-    printf("BEATMAP readings: Button0: %d, Button1: %d, Button2: %d\n", \
+    printf("BEATMAP: Button0: %d, Button1: %d, Button2: %d\n", \
     	 	beatmap[buffer_idx][0], beatmap[buffer_idx][1], beatmap[buffer_idx][2]);
-
-
-    // led print test
-    // TODO: interrupt issue 
-	if (beatmap[buffer_idx][0] == 1) {
-		push_next_light(0, (rgb_color_t) {.r = 255, .g = 32, .b = 0});
-	} else {
-		push_next_light(0, (rgb_color_t) DARK);
-	}
-	if (beatmap[buffer_idx][1] == 1) {
-		push_next_light(1, (rgb_color_t) {.r = 255, .g = 195, .b = 5});
-	} else {
-		push_next_light(1, (rgb_color_t) DARK);
-	}
-	if (beatmap[buffer_idx][2] == 1) {
-		push_next_light(2, (rgb_color_t) {.r = 0, .g = 255, .b = 255});
-	} else {
-		push_next_light(2, (rgb_color_t) DARK);
 	}
 
-	
-	show(0);
-	show(1);
-	show(2);
+    for (int i = 0; i < 3; i++) {
+    	if (beatmap[buffer_idx][i] == 1 && onbeat == 0) {
+    		push_next_light(i, bop_it_colors[i]);
+    		if (btn[i] == beatmap[buffer_idx][i]) {
+		    	display_good = true; 
+		    	score += 1;
+		    	printf("btn %d hit \n", i);
+		    }
+    	} else {
+    		push_next_light(i, (rgb_color_t) DARK);
+    	}
+    	show(i);
+    }
 
-	// compare the inputs and beatmap 
-	if (onbeat) {
-	    if (btn[0] == beatmap[buffer_idx][0]) {
-	    	display_good = true; 
-	    	score += 1;
-	    	printf("btn 0 hit \n");
-	    }
-	    if (btn[1] == beatmap[buffer_idx][1]) {
-	    	display_good = true;  
-	    	score += 1;
-	    	printf("btn 1 hit \n");
-	    }
-	    if (btn[2] == beatmap[buffer_idx][2]) {
-	    	display_good = true; 
-	    	score += 1;
-	    	printf("btn 2 hit \n");
-	    }
-
-	    if (display_good) {
+    if (onbeat == 0) {
+    	if (display_good) {
 	        display_write("H I T !", DISPLAY_LINE_0);
 	        printf("H I T !\n");
 	    } else {
@@ -140,21 +120,74 @@ static void bpm_read_callback(void * p_context){
 	        display_write("...", DISPLAY_LINE_1);
 	        printf("MISS T_T\n");
 	    }
-		printf("beatmap count: %d", buffer_idx);
-    	buffer_idx ++;
-	}
-
+	    buffer_idx ++;
+    }
     btn[0] = 0;
     btn[1] = 0;
     btn[2] = 0;
-    onbeat ^= 1;
+    onbeat++;
+    onbeat %= 4;
+    // led print test
+    // TODO: interrupt issue 
+	// if (beatmap[buffer_idx][0] == 1) {
+	// 	push_next_light(0, (rgb_color_t) {.r = 255, .g = 32, .b = 0});
+	// } else {
+	// 	push_next_light(0, (rgb_color_t) DARK);
+	// }
+	// if (beatmap[buffer_idx][1] == 1) {
+	// 	push_next_light(1, (rgb_color_t) {.r = 255, .g = 195, .b = 5});
+	// } else {
+	// 	push_next_light(1, (rgb_color_t) DARK);
+	// }
+	// if (beatmap[buffer_idx][2] == 1) {
+	// 	push_next_light(2, (rgb_color_t) {.r = 0, .g = 255, .b = 255});
+	// } else {
+	// 	push_next_light(2, (rgb_color_t) DARK);
+	// }
+
+	
+	// show(0);
+	// show(1);
+	// show(2);
+
+	// compare the inputs and beatmap 
+	// if (onbeat) {
+	//     if (btn[0] == beatmap[buffer_idx][0]) {
+	//     	display_good = true; 
+	//     	score += 1;
+	//     	printf("btn 0 hit \n");
+	//     }
+	//     if (btn[1] == beatmap[buffer_idx][1]) {
+	//     	display_good = true;  
+	//     	score += 1;
+	//     	printf("btn 1 hit \n");
+	//     }
+	//     if (btn[2] == beatmap[buffer_idx][2]) {
+	//     	display_good = true; 
+	//     	score += 1;
+	//     	printf("btn 2 hit \n");
+	//     }
+
+	//     if (display_good) {
+	//         display_write("H I T !", DISPLAY_LINE_0);
+	//         printf("H I T !\n");
+	//     } else {
+	//         display_write("MISS T_T", DISPLAY_LINE_0);
+	//         display_write("...", DISPLAY_LINE_1);
+	//         printf("MISS T_T\n");
+	//     }
+	// 	printf("beatmap count: %d", buffer_idx);
+ //    	buffer_idx ++;
+	// }
+
+
 }
 
 // simple, test beatmap generator 
 void generate_beatmap(void) {
 
     for (int i = 0; i < BEATMAP_SIZE; i++) {
-    	if (i % 8 == 0) {
+    	if (i % 4 == 0) {
 	    	beatmap[i][0] = 1;
 	    	beatmap[i][1] = 1;
 	    	beatmap[i][2] = 1;
@@ -257,7 +290,7 @@ void bpm_timer_init(void) {
     APP_ERROR_CHECK(error_code);
 
     // fires in every 250 ms
-    error_code = app_timer_start(BPM240, APP_TIMER_TICKS(125), NULL);
+    error_code = app_timer_start(BPM240, APP_TIMER_TICKS(62.5), NULL);
     APP_ERROR_CHECK(error_code);
 }
 
@@ -303,7 +336,7 @@ int main(void) {
     display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);
     display_write("PLAY? ->", DISPLAY_LINE_1);
 
-    onbeat = true;
+    onbeat = 0;
 
 
     //////////////////////////////////////////////////////////////////////

@@ -22,7 +22,7 @@
     .mosi_pin     = 29,                						 \
     .miso_pin     = NRF_DRV_SPI_PIN_NOT_USED,                \
     .ss_pin       = NRF_DRV_SPI_PIN_NOT_USED,                \
-    .irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY,         \
+    .irq_priority = 5, 										 \
     .orc          = 0xFF,                                    \
     .frequency    = NRF_DRV_SPI_FREQ_125K,                   \
     .mode         = NRF_DRV_SPI_MODE_0,                      \
