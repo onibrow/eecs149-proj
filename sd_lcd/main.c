@@ -50,7 +50,7 @@ char beatmap 				[BEATMAP_SIZE][3];	// [size of the beatmap][three inputs]
 #define BopIt_BUTTON0 	 	NRF_GPIO_PIN_MAP(0, 11)
 #define BopIt_BUTTON1 		NRF_GPIO_PIN_MAP(0, 12)
 #define BopIt_BUTTON2 	 	NRF_GPIO_PIN_MAP(0, 13)
-#define BopIt_OUTPUT		NRF_GPIO_PIN_MAP(0, 31)
+#define BopIt_OUTPUT		NRF_GPIO_PIN_MAP(0, 14)
 
 #define SONG_LENGTH_MS		APP_TIMER_TICKS(5000)
 
@@ -81,9 +81,7 @@ static void bpm_read_callback(void * p_context){
     	 	btn[0], btn[1], btn[2]);
 
     printf("BEATMAP readings: Button0: %d, Button1: %d, Button2: %d\n", \
-    	 	beatmap[buffer_idx][0], \
-    	 	beatmap[buffer_idx][1], \
-    	 	beatmap[buffer_idx][2]);
+    	 	beatmap[buffer_idx][0], beatmap[buffer_idx][1], beatmap[buffer_idx][2]);
 
     if (btn[0] == beatmap[buffer_idx][0]) {
     	display_good = true; 
@@ -149,6 +147,8 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
     	printf("start button pressed  ... \n");
 		display_write("GAME ON", DISPLAY_LINE_0);
 		display_write("(*_*)", DISPLAY_LINE_1);
+
+        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
 
         nrf_delay_ms(2000); // give some time to get ready 
 
