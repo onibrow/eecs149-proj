@@ -84,10 +84,11 @@ void push_next_light(int8_t id, rgb_color_t color) {
 
 /*
  * Function to initiate SPI transfer and display cnages to LED strip
+ * Returns true when the oldest LED is on
 
  * @param	id 		 	strip to initiate transfer
  */
-void show(int8_t id) {
+bool show(int8_t id) {
 	spi_xfer_done = false;
 	nrf_gpio_pin_write(MUX_PIN_A, (id % 2));
 	nrf_gpio_pin_write(MUX_PIN_B, ((id >> 1) % 2));
@@ -113,7 +114,8 @@ void show(int8_t id) {
 
     // nrf_gpio_pin_write(MUX_PIN_A, 1);
     // nrf_gpio_pin_write(MUX_PIN_B, 1);
-    return;
+    rgb_color_t last = strips[id][front]
+    return ((last.r != 0) || (last.g != 0) || (last.b != 0));
 }
 
 
