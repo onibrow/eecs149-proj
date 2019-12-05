@@ -38,7 +38,7 @@ uint16_t score 				= 0;        // Record the score
 char score_str[16];             		// convert score to str for display
 
 uint16_t read_idx 			= 0;        // Indicator which reading to read for buffer
-uint16_t buffer_idx 		= 0;     
+uint32_t buffer_idx 		= 0;     
 #define BUFFER_SIZE 		8     
 #define BEATMAP_SIZE		960
 
@@ -140,8 +140,10 @@ static void bpm_read_callback(void * p_context){
 	        display_write("...", DISPLAY_LINE_1);
 	        printf("MISS T_T\n");
 	    }
+		printf("beatmap count: %d", buffer_idx);
+    	buffer_idx ++;
 	}
-    buffer_idx ++;
+
     btn[0] = 0;
     btn[1] = 0;
     btn[2] = 0;
