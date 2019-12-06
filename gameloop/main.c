@@ -63,10 +63,11 @@ states_t game;
 uint8_t btn[3];
 
 uint8_t onbeat;
+bool prev_last_on;
 
 rgb_color_t bop_it_colors[3] = {
-	(rgb_color_t) {.r = 255, .g = 32,  .b = 0},
 	(rgb_color_t) {.r = 255, .g = 195, .b = 5},
+	(rgb_color_t) {.r = 255, .g = 32,  .b = 0},
 	(rgb_color_t) {.r = 0,   .g = 255, .b = 255}};
 
 // *************************************************************************
@@ -93,40 +94,51 @@ static void bpm_read_callback(void * p_context){
     printf("\n\nINPUT:   Button0: %d, Button1: %d, Button2: %d\n", \
     	 	btn[0], btn[1], btn[2]);
 
-    printf("BEATMAP: Button0: %d, Button1: %d, Button2: %d\n", \
+    // printf("BEATMAP: Button0: %d, Button1: %d, Button2: %d\n", \
     	 	beatmap[buffer_idx][0], beatmap[buffer_idx][1], beatmap[buffer_idx][2]);
 	}
+	bool last_on = false;
 
     for (int i = 0; i < 3; i++) {
     	if (beatmap[buffer_idx][i] == 1 && onbeat == 0) {
     		push_next_light(i, bop_it_colors[i]);
-    		if (btn[i] == beatmap[buffer_idx][i]) {
-		    	display_good = true; 
-		    	score += 1;
-		    	printf("btn %d hit \n", i);
-		    }
+    		// if (btn[i] == beatmap[buffer_idx][i]) {
+		    // 	display_good = true; 
+		    // 	score += 1;
+		    // 	printf("btn %d hit \n", i);
+		    // }
     	} else {
     		push_next_light(i, (rgb_color_t) DARK);
     	}
-    	show(i);
+    	last_on = show(i);
+    	display_good = ((last_on && (btn[i] == 1))|| prev_last_on || display_good);
+    	// printf("display_good: %d\n", display_good);
+    }
+    // printf("LAST LED ON: %d\n", display_good);
+    if (display_good) {
+		score += 1;
+        display_write("H I T !", DISPLAY_LINE_0);
+        printf("H I T !\n");
+    } else {
+        display_write("MISS T_T", DISPLAY_LINE_0);
+        display_write("...", DISPLAY_LINE_1);
+        printf("MISS T_T\n\n");
     }
 
     if (onbeat == 0) {
-    	if (display_good) {
-	        display_write("H I T !", DISPLAY_LINE_0);
-	        printf("H I T !\n");
-	    } else {
-	        display_write("MISS T_T", DISPLAY_LINE_0);
-	        display_write("...", DISPLAY_LINE_1);
-	        printf("MISS T_T\n");
-	    }
 	    buffer_idx ++;
+	    
     }
+    printf("last_on: %d\n\n", last_on);
+
     btn[0] = 0;
     btn[1] = 0;
     btn[2] = 0;
     onbeat++;
     onbeat %= 4;
+    prev_last_on = last_on;
+
+
     // led print test
     // TODO: interrupt issue 
 	// if (beatmap[buffer_idx][0] == 1) {
@@ -188,9 +200,13 @@ void generate_beatmap(void) {
 
     for (int i = 0; i < BEATMAP_SIZE; i++) {
     	if (i % 4 == 0) {
-	    	beatmap[i][0] = 1;
+	    	beatmap[i][0] = 0;
 	    	beatmap[i][1] = 1;
-	    	beatmap[i][2] = 1;
+	    	beatmap[i][2] = 0;
+	    } else if (i % 4 == 2) {
+	    	beatmap[i][0] = 1;
+	    	beatmap[i][1] = 0;
+	    	beatmap[i][2] = 0;
 	    } else {
 	    	beatmap[i][0] = 0;
 	    	beatmap[i][1] = 0;
@@ -223,7 +239,7 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 
 	        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
 
-	        nrf_delay_ms(100); // give some time to get ready 
+	        nrf_delay_ms(250); // give some time to get ready 
 	        
 	        nrf_gpio_pin_write(BopIt_OUTPUT, 0);
 
@@ -232,7 +248,7 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 			break;
 		} 
 		case PLAY: {
-			printf("button interrupt getting called ... \n");
+			// printf("button interrupt getting called ... \n");
 			// have to check individual inputs 
 			// could be a timer, sync issue later. maybe better to put in callback 
 			for (int i = 0; i < 3; i++) {
@@ -336,7 +352,8 @@ int main(void) {
     display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);
     display_write("PLAY? ->", DISPLAY_LINE_1);
 
-    onbeat = 0;
+    onbeat = 1;
+    prev_last_on = false;
 
 
     //////////////////////////////////////////////////////////////////////
