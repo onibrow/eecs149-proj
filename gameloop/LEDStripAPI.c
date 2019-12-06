@@ -13,6 +13,7 @@ static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
                        void *                    p_context)
 {
     spi_xfer_done = true;
+    // printf("Transfer Done!\n");
     if (m_rx_buf[0] != 0)
     {
         // NRF_LOG_HEXDUMP_INFO(m_rx_buf, strlen((const char *)m_rx_buf));
@@ -94,23 +95,23 @@ bool show(int8_t id) {
 	nrf_gpio_pin_write(MUX_PIN_B, ((id >> 1) % 2));
 
 	int i = front[id];
-	int count = 0;
-	while (count < NUM_LEDS) {
+	int count = NUM_LEDS-1;
+	while (count >= 0) {
 		if (++i >= NUM_LEDS) {
 			i = 0;
 		}
 		m_tx_buf[count*3] = 	strips[id][i].b;
 		m_tx_buf[count*3 + 1] = strips[id][i].g;
 		m_tx_buf[count*3 + 2] = strips[id][i].r;
-		count++;
+		count--;
 	}
 
 	APP_ERROR_CHECK(nrf_drv_spi_transfer(spi_addr, m_tx_buf, m_length, m_rx_buf, m_length));
-
+	
 	while (!spi_xfer_done) {
-    	nrf_delay_ms(1);
-    	//__WFE();
+    	__WFE();
     }
+
 
     // nrf_gpio_pin_write(MUX_PIN_A, 1);
     // nrf_gpio_pin_write(MUX_PIN_B, 1);

@@ -98,6 +98,7 @@ BOARD_SOURCES += \
 	nrfx_gpiote.c\
 	app_scheduler.c\
 	app_util_platform.c\
+  app_button.c\
 	#diskio_blkdev.c\
 	#nrf_block_dev_sdc.c\
 
