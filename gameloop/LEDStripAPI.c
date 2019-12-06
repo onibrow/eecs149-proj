@@ -89,12 +89,13 @@ void push_next_light(int8_t id, rgb_color_t color) {
 
  * @param	id 		 	strip to initiate transfer
  */
-bool show(int8_t id) {
+void show(int8_t id) {
 	spi_xfer_done = false;
 	nrf_gpio_pin_write(MUX_PIN_A, (id % 2));
 	nrf_gpio_pin_write(MUX_PIN_B, ((id >> 1) % 2));
 
 	int i = last[id];
+	int j = 0;
 	int count = NUM_LEDS-1;
 	while (count >= 0) {
 		if (++i >= NUM_LEDS) {
@@ -103,6 +104,12 @@ bool show(int8_t id) {
 		m_tx_buf[count*3] = 	strips[id][i].b;
 		m_tx_buf[count*3 + 1] = strips[id][i].g;
 		m_tx_buf[count*3 + 2] = strips[id][i].r;
+
+		if (count < HZ_SIZE) {
+			hit_zone[id][j] = (strips[id][i].b != 0) || (strips[id][i].g != 0) || (strips[id][i].r != 0);
+			j++;
+		}
+
 		count--;
 	}
 
@@ -115,12 +122,25 @@ bool show(int8_t id) {
 
     // nrf_gpio_pin_write(MUX_PIN_A, 1);
     // nrf_gpio_pin_write(MUX_PIN_B, 1);
-    rgb_color_t last_led = strips[id][last[id]];
-    rgb_color_t last_led2 = strips[id][(last[id] + 1)%NUM_LEDS];
-    bool last_on = ((last_led.r != 0) || (last_led.g != 0) || (last_led.b != 0));
-    last_on = last_on || ((last_led2.r != 0) || (last_led2.g != 0) || (last_led2.b != 0));
+    // rgb_color_t last_led = strips[id][last[id]];
+    // rgb_color_t last_led2 = strips[id][(last[id] + 1)%NUM_LEDS];
+    // bool last_on = ((last_led.r != 0) || (last_led.g != 0) || (last_led.b != 0));
+    // last_on = last_on || ((last_led2.r != 0) || (last_led2.g != 0) || (last_led2.b != 0));
     // printf("last_on: %d\n", last_on);
-    return last_on;
+    return;
+}
+
+/*
+ * Function that returns true if there is a light on in the hit zone
+
+ * @param 	id 		id of strip to check hit zone for
+ */
+bool check_hit_zone(int8_t id) {
+	bool check = false;
+	for (int i = 0; i < HZ_SIZE; i++) {
+		check = (check || hit_zone[id][i]);
+	}
+	return check;
 }
 
 
@@ -138,6 +158,38 @@ void setLED(int8_t id, int pos, rgb_color_t color) {
 		return;
 	}
 	strips[id][pos] = color;
+}
+
+/*
+ * Function that lights all currently DARK LEDs, dim GREEN
+ * Used for successful hit
+
+ * @param 	id 		strip id to light
+ */
+void green_backlight(int8_t id) {
+	for (int i = 0; i < NUM_STRIPS; i++) {
+		if (strips[id][i].r != 0 || strips[id][i].g != 0 || strips[id][i].b != 0) {
+			continue;
+		} else {
+			strips[id][i] = (rgb_color_t) {.r = 0, .g = 50, .b = 0};
+		}
+	}
+}
+
+/*
+ * Function that lights all currently DARK LEDs, dim RED
+ * Used for successful hit
+
+ * @param 	id 		strip id to light
+ */
+void red_backlight(int8_t id) {
+	for (int i = 0; i < NUM_STRIPS; i++) {
+		if (strips[id][i].r != 0 || strips[id][i].g != 0 || strips[id][i].b != 0) {
+			continue;
+		} else {
+			strips[id][i] = (rgb_color_t) {.r = 50, .g = 0, .b = 0};
+		}
+	}
 }
 
 /*

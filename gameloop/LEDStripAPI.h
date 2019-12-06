@@ -39,10 +39,10 @@ static volatile bool spi_xfer_done;  /* < Flag used to indicate that SPI instanc
 static volatile bool spi_init = false;
 
 static volatile nrf_drv_spi_t* spi_addr;			 /* < master spi instance address, assigned by user */
-static const nrf_drv_spi_config_t standard_config = LED_SPI_DEFAULT_CONFIG;
-static const uint8_t m_length = NUM_LEDS*3;         /**< Transfer length. */
-static volatile uint8_t       m_tx_buf[NUM_LEDS*3];          /**< TX buffer. */
-static uint8_t       m_rx_buf[NUM_LEDS*3];    		/**< RX buffer. */
+static const nrf_drv_spi_config_t standard_config 	= LED_SPI_DEFAULT_CONFIG;
+static const uint8_t m_length 						= NUM_LEDS*3;        		/**< Transfer length. */
+static volatile uint8_t m_tx_buf[NUM_LEDS*3];       /**< TX buffer. */
+static uint8_t m_rx_buf[NUM_LEDS*3];    			/**< RX buffer. */
 
 /* rgb_color_t datatype for storing color values */
 /* NOTE: colors need to be declared in reverse order (i.e. b, g, r) */
@@ -61,6 +61,12 @@ typedef struct rgb_color_t {
 }
 
 static rgb_color_t strips[NUM_STRIPS][NUM_LEDS];
+
+#define HZ_SIZE 3 		// Margin of Error for Valid Hit
+
+static bool hit_zone[NUM_STRIPS][HZ_SIZE];
+
+
 
 /*
 
@@ -93,12 +99,17 @@ void push_next_light(int8_t id, rgb_color_t color);
 
 /*
  * Function to initiate SPI transfer and display cnages to LED strip
- * Returns true when the oldest LED is on
 
- * @param	id 		 	strip to initiate transfer
+ * @param	id 		strip to initiate transfer
  */
-bool show(int8_t id);
+void show(int8_t id);
 
+/*
+ * Function that returns true if there is a light on in the hit zone
+
+ * @param 	id 		id of strip to check hit zone for
+ */
+bool check_hit_zone(int8_t id);
 
 /*
  * Function for setting individual LEDs with a specified color
@@ -110,8 +121,24 @@ bool show(int8_t id);
  */
 void setLED(int8_t id, int pos, rgb_color_t color);
 
+/*
+ * Function that lights all currently DARK LEDs, dim green
+ * Used for successful hit
+
+ * @param 	id 		strip id to light
+ */
+void green_backlight(int8_t id);
+
+/*
+ * Function that lights all currently DARK LEDs, dim RED
+ * Used for successful hit
+
+ * @param 	id 		strip id to light
+ */
+void red_backlight(int8_t id);
 
 /*
  * Function that prints the current state of the LED strips
  */
 void printState();
+
