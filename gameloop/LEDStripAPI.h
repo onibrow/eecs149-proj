@@ -28,7 +28,7 @@
     .mode         = NRF_DRV_SPI_MODE_0,                      \
     .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,         \
 }
-#define NUM_LEDS 15 		// CHANGE THIS FOR CORRECT NUMBER OF LEDS
+#define NUM_LEDS 16 		// CHANGE THIS FOR CORRECT NUMBER OF LEDS
 
 #define NUM_STRIPS 3	// CHANGE THIS FOR CORRECT NUMBER OF STRIPS
 

@@ -1,6 +1,6 @@
 #include "LEDStripAPI.h"
 
-static int front[NUM_STRIPS];
+static int last[NUM_STRIPS];
 
 static void spi_event_handler(nrf_drv_spi_evt_t const * p_event,
                        void *                    p_context);
@@ -48,7 +48,7 @@ void led_strips_init() {
 		}
 	}
 	for (int8_t i = 0; i < NUM_STRIPS; i++) {
-		front[i] = NUM_LEDS - 1;
+		last[i] = NUM_LEDS - 1;
 	}
 
 	nrf_gpio_cfg_output(MUX_PIN_A);
@@ -65,7 +65,7 @@ void clear_led_strip(int8_t id) {
 	for (int i = 0; i < NUM_LEDS; i++) {
 		strips[id][i] = (rgb_color_t) DARK;
 	}
-	front[id] = NUM_LEDS - 1;
+	last[id] = NUM_LEDS - 1;
 	return;
 }
 
@@ -76,9 +76,9 @@ void clear_led_strip(int8_t id) {
  * @param 	color 	color on next light to add
  */
 void push_next_light(int8_t id, rgb_color_t color) {
-	strips[id][front[id]] = color;
-	if (--(front[id]) < 0) {
-		front[id] = NUM_LEDS - 1;
+	strips[id][last[id]] = color;
+	if (--(last[id]) < 0) {
+		last[id] = NUM_LEDS - 1;
 	} 
 	return;
 }
@@ -94,7 +94,7 @@ bool show(int8_t id) {
 	nrf_gpio_pin_write(MUX_PIN_A, (id % 2));
 	nrf_gpio_pin_write(MUX_PIN_B, ((id >> 1) % 2));
 
-	int i = front[id];
+	int i = last[id];
 	int count = NUM_LEDS-1;
 	while (count >= 0) {
 		if (++i >= NUM_LEDS) {
@@ -115,8 +115,12 @@ bool show(int8_t id) {
 
     // nrf_gpio_pin_write(MUX_PIN_A, 1);
     // nrf_gpio_pin_write(MUX_PIN_B, 1);
-    rgb_color_t last = strips[id][front]
-    return ((last.r != 0) || (last.g != 0) || (last.b != 0));
+    rgb_color_t last_led = strips[id][last[id]];
+    rgb_color_t last_led2 = strips[id][(last[id] + 1)%NUM_LEDS];
+    bool last_on = ((last_led.r != 0) || (last_led.g != 0) || (last_led.b != 0));
+    last_on = last_on || ((last_led2.r != 0) || (last_led2.g != 0) || (last_led2.b != 0));
+    // printf("last_on: %d\n", last_on);
+    return last_on;
 }
 
 
