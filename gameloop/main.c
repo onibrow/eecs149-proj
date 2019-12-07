@@ -45,6 +45,8 @@ uint32_t buffer_idx 		= 0;
 #define BUFFER_SIZE 		8     
 #define BEATMAP_SIZE		896 -2
 
+uint32_t game_start_time;
+
 char test_reading_buffer	[BUFFER_SIZE][3]; 
 uint8_t beatmap 			[BEATMAP_SIZE] = {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -223,7 +225,7 @@ static void bpm_read_callback(void * p_context){
     // printf("LAST LED ON: %d\n", hit_good);
     if (hit_good) {
 		score += 1;
-
+		total_beats += 1;
         display_write("H I T !", DISPLAY_LINE_0);
         beat_passed[which_hit] = 3;
         printf("H I T !\n");
@@ -231,6 +233,7 @@ static void bpm_read_callback(void * p_context){
     	printf("MISSED...\n");
     	display_write("MISSED...", DISPLAY_LINE_0);
     	display_write("", DISPLAY_LINE_1);
+    	total_beats += 1;
     	beat_passed[0] %= 2;
     	beat_passed[1] %= 2;
     	beat_passed[2] %= 2;
@@ -358,6 +361,8 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 
 	    	game = PLAY;
 			bpm_timer_init();
+
+			game_start_time = app_timer_cnt_get();
 			break;
 		} 
 		case PLAY: {
@@ -421,6 +426,8 @@ void bpm_timer_init(void) {
     // fires in every 250 ms
     error_code = app_timer_start(BPM240, APP_TIMER_TICKS(62.5), NULL);
     APP_ERROR_CHECK(error_code);
+
+    // game_start_time = app_timer_cnt_get();
 }
 
 
@@ -470,6 +477,9 @@ int main(void) {
     beat_passed[1] = 0;
     beat_passed[2] = 0;
 
+    uint32_t cur_time = 0;
+    uint32_t time_diff = 0;
+
 
     //////////////////////////////////////////////////////////////////////
 
@@ -481,7 +491,12 @@ int main(void) {
 	    	}
 	    
 			case PLAY: { 
-				if (app_timer_cnt_get() >= SONG_LENGTH_MS) {
+				cur_time = app_timer_cnt_get();
+				// printf("cur_time: %d  |  SONG LENGTH: %d\n", cur_time, SONG_LENGTH_MS);
+				// printf("difference: %d\n\n", app_timer_cnt_diff_compute(cur_time, game_start_time));
+				time_diff = app_timer_cnt_diff_compute(cur_time, game_start_time);
+
+				if (time_diff >= SONG_LENGTH_MS) {
 
 					APP_ERROR_CHECK(app_timer_stop(BPM240));
 					game = GAMEOVER;
@@ -499,14 +514,16 @@ int main(void) {
 				// Print Score 
 			    printf("game is over...\n");
 
-			    snprintf(score_str, 16, "SCORE: %d", score);
+			    snprintf(score_str, 16, "SCORE: %d/%d", score, total_beats);
 			    display_write(score_str, DISPLAY_LINE_0);
 			    display_write("PLAY AGAIN? ->", DISPLAY_LINE_1);
 
 			    nrf_delay_ms(2000);
+			    buffer_idx = 0;
 			    score = 0;
 			    total_beats = 0;
 			    game = NOPLAY;
+			    break;
 			}
 		}
     }
