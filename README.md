@@ -15,9 +15,13 @@ cd eecs149-proj
 
 [Spreadsheet](https://docs.google.com/spreadsheets/d/1WutyDuHFwCbV_97uEuxx-2Y0jQ0Z9K7RMsq6U2ZCgrc/edit?usp=sharing)
 
-Rhythm games have always been popular - we have Dance Dance Revolution, Tap Tap Revenge, Guitar Hero, Rhythm Heaven, Elite Beat Agents, osu!, Beat Saber, Dance Rush, Simon Says, and more. In our project, we would like to tackle one of these types of rhythm games from a new angle. We will focus on the discrete note, single dimension approach to rhythm games similar to Guitar Hero or Tap Tap Revenge - these games require the player to on beat, actual inputs from a pool of predefined discrete buttons; for Guitar Hero's case, a selection of 5 frets and a strummer, and in Tap Tap Revenge's case, 4 discrete horizontle buttons. We will take this style of gameplay and translate into something no one has seen before - a Bop It! driven hardware implemented beat map.
+**Project Goal**
 
-Specifically, we will use the three actuation points on the Has🅱️ro Bop It! (Twist-It, Pull-It, and Bop-It) as inputs to our game that displays its oncoming beats not on a screen but on 3 LED strips. There will be indicators giving the user feedback on whether or not they were able to successfully hit each note, and will total up the score at the very end for high octane, competitive gameplay.
+We will implement a discrete note, single dimension rhythm game similar to Guitar Hero where the player is required to, on beat, actuate inputs from a pool of predefined discrete buttons. We will take this style of gameplay and translate into a Bop It driven hardware and LED display for the beat map.
+
+**Project Approach**
+
+The gameplay with be modeled as a state machine that keeps track of the state of the game (in game play, idling, song selection, etc). The sensor inputs will generate interrupts that trigger different events within the game. Timing and synchronicity will be very important to make sure the LEDs are lighting up on cue with the music. As a final product, we would like to seamlessly take input from the player and translate that to well timed gameplay with LED signals and music.
 
 ## Getting out of dependency hell
 
@@ -30,10 +34,8 @@ Specifically, we will use the three actuation points on the Has🅱️ro Bop It!
     1. Near line 95, the list of `BOARD_SOURCES` should end. Add the C file at the end of the list (make sure to terminate with a `\`). ex: `blah.c\`
 1. Repeat the above steps for all dependencies.
 
-## Meeting Notes
-
-### 11/7
-
+## Notes
+Meeting
 MP3 files are compressed so they need to be decoded to be played on a DAC -> this isn't particularly ideal so we will switch over to WAV files which are uncompressed. From Audacity, we can see that we can save them in various formats (16 bit or 24 bit PCM), which will allow us to basically read in binary and shove them into either the I2S registers or over I2C. [Here](https://www.sparkfun.com/tutorials/160)'s a tutorial on how to play WAV files and goes over their limitations. 
 
 ## Useful Links:
