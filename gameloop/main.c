@@ -27,7 +27,7 @@
 #include "simple_logger.h"
 #include "app_scheduler.h"
 
-#include "beatmaps.c"
+//#include "beatmaps.c"
 
 
 // *************************************************************************
@@ -48,6 +48,8 @@ uint32_t buffer_idx 		= 0;
 uint32_t game_start_time;
 
 char test_reading_buffer	[BUFFER_SIZE][3]; 
+
+
 uint8_t beatmap 			[BEATMAP_SIZE] = {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -117,11 +119,168 @@ uint8_t beatmap 			[BEATMAP_SIZE] = {
 4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0
 };
 
+
+
+uint8_t beatmap1 			[BEATMAP_SIZE] = {
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+
+2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+4, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
+2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+4, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
+
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0
+};
+
+
+
+uint8_t beatmap2 			[BEATMAP_SIZE] = {
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
+
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+
+2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+4, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
+2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+4, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
+
+2, 2, 0, 2, 0, 0, 1, 0, 2, 2, 0, 2, 0, 0, 2, 0, 
+2, 2, 0, 2, 0, 0, 4, 0, 2, 2, 0, 2, 0, 4, 2, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0,
+1, 1, 0, 1, 0, 0, 4, 0, 2, 2, 0, 2, 0, 0, 4, 0,
+4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0
+};
+
+
+// uint8_t(* beatmaps)[BEATMAP_SIZE];
+// beatmaps[0] = beatmap;
+// beatmaps[1] = beatmap1;
+// beatmaps[2] = beatmap2;
+uint8_t * beatmap_list[3] = { beatmap, beatmap1, beatmap2 };
+uint8_t * beatmap_to_play;
+
+
+
 // consider merging these to buckler.h 
+
+#define add(x,y) x##y
 #define BopIt_BUTTON0 	 	NRF_GPIO_PIN_MAP(0, 11)
 #define BopIt_BUTTON1 		NRF_GPIO_PIN_MAP(0, 12)
 #define BopIt_BUTTON2 	 	NRF_GPIO_PIN_MAP(0, 13)
+
 #define BopIt_OUTPUT		NRF_GPIO_PIN_MAP(0, 14)
+#define BopIt_OUTPUT2		NRF_GPIO_PIN_MAP(0, 10)
+
 
 #define SONG_LENGTH_MS		APP_TIMER_TICKS(240000)
 
@@ -141,6 +300,12 @@ rgb_color_t bop_it_colors[3] = {
 	(rgb_color_t) {.r = 255, .g = 195, .b = 5},
 	(rgb_color_t) {.r = 255, .g = 32,  .b = 0},
 	(rgb_color_t) {.r = 0,   .g = 255, .b = 255}};
+
+char song_titles[3][17] = {
+	"SUGAR", "SONG2", "SONG3"
+};
+
+uint8_t song_select = 0;
 
 uint8_t beat_passed[3]; // beat is present (1), missing (0), passed (2), or hit (3)
 
@@ -253,83 +418,7 @@ static void bpm_read_callback(void * p_context){
     btn[2] = 0;
     onbeat++;
     onbeat %= 4;
-
-
-    // led print test
-    // TODO: interrupt issue 
-	// if (beatmap[buffer_idx][0] == 1) {
-	// 	push_next_light(0, (rgb_color_t) {.r = 255, .g = 32, .b = 0});
-	// } else {
-	// 	push_next_light(0, (rgb_color_t) DARK);
-	// }
-	// if (beatmap[buffer_idx][1] == 1) {
-	// 	push_next_light(1, (rgb_color_t) {.r = 255, .g = 195, .b = 5});
-	// } else {
-	// 	push_next_light(1, (rgb_color_t) DARK);
-	// }
-	// if (beatmap[buffer_idx][2] == 1) {
-	// 	push_next_light(2, (rgb_color_t) {.r = 0, .g = 255, .b = 255});
-	// } else {
-	// 	push_next_light(2, (rgb_color_t) DARK);
-	// }
-
-	
-	// show(0);
-	// show(1);
-	// show(2);
-
-	// compare the inputs and beatmap 
-	// if (onbeat) {
-	//     if (btn[0] == beatmap[buffer_idx][0]) {
-	//     	hit_good = true; 
-	//     	score += 1;
-	//     	printf("btn 0 hit \n");
-	//     }
-	//     if (btn[1] == beatmap[buffer_idx][1]) {
-	//     	hit_good = true;  
-	//     	score += 1;
-	//     	printf("btn 1 hit \n");
-	//     }
-	//     if (btn[2] == beatmap[buffer_idx][2]) {
-	//     	hit_good = true; 
-	//     	score += 1;
-	//     	printf("btn 2 hit \n");
-	//     }
-
-	//     if (hit_good) {
-	//         display_write("H I T !", DISPLAY_LINE_0);
-	//         printf("H I T !\n");
-	//     } else {
-	//         display_write("MISS T_T", DISPLAY_LINE_0);
-	//         display_write("...", DISPLAY_LINE_1);
-	//         printf("MISS T_T\n");
-	//     }
-	// 	printf("beatmap count: %d", buffer_idx);
- //    	buffer_idx ++;
-	// }
-
-
 }
-
-// // simple, test beatmap generator 
-// void generate_beatmap(void) {
-
-//     for (int i = 0; i < BEATMAP_SIZE; i++) {
-//     	if (i % 4 == 0) {
-// 	    	beatmap[i][0] = 0;
-// 	    	beatmap[i][1] = 1;
-// 	    	beatmap[i][2] = 0;
-// 	    } else if (i % 4 == 2) {
-// 	    	beatmap[i][0] = 1;
-// 	    	beatmap[i][1] = 0;
-// 	    	beatmap[i][2] = 0;
-// 	    } else {
-// 	    	beatmap[i][0] = 0;
-// 	    	beatmap[i][1] = 0;
-// 	    	beatmap[i][2] = 0;
-// 	    }
-//     }
-// }
 
 // *************************************************************************
 // ***************************** INITIALIZER *******************************
@@ -350,19 +439,62 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 	    case NOPLAY: {
 			printf("\n*********** GAME ON ***********\n");
 	    	printf("start button pressed  ... \n");
-			display_write("GAME ON", DISPLAY_LINE_0);
-			display_write("(*_*)", DISPLAY_LINE_1);
 
-	        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
+			for (int i = 0; i < 3; i++) {
+				btn[i] = app_button_is_pushed(i);
+			}
 
-	        nrf_delay_ms(250); // give some time to get ready 
-	        
-	        nrf_gpio_pin_write(BopIt_OUTPUT, 0);
+			if (btn[1] == 1) {
+				beatmap_to_play = beatmap_list[song_select];
+				// printf("beat map to play addr: %p", beatmap_to_play);
+	    		game = PLAY;
 
-	    	game = PLAY;
-			bpm_timer_init();
 
-			game_start_time = app_timer_cnt_get();
+	    		if (song_select == 0) {
+			        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
+			        nrf_gpio_pin_write(BopIt_OUTPUT2, 0);
+	    		} else if (song_select == 1) {
+			        nrf_gpio_pin_write(BopIt_OUTPUT, 0);
+			        nrf_gpio_pin_write(BopIt_OUTPUT2, 1);
+	    		} else if (song_select == 2) {
+			        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
+			        nrf_gpio_pin_write(BopIt_OUTPUT2, 1);
+	    		}
+
+		        nrf_delay_ms(250); 
+
+			    nrf_gpio_pin_write(BopIt_OUTPUT, 0);
+			    nrf_gpio_pin_write(BopIt_OUTPUT2, 0);
+
+		    	game = PLAY;
+				bpm_timer_init();
+
+				game_start_time = app_timer_cnt_get();
+
+				break;
+			}
+
+			if (btn[0] == 1) {
+				if (song_select == 0) {
+					song_select = 2;
+				} else {
+					song_select--;
+				}
+			}
+
+			if (btn[2] == 1) {
+				if (song_select == 2) {
+					song_select = 0;
+				} else {
+					song_select++;
+				}
+			}
+
+			char display_title[16];
+			snprintf(display_title, 16, "%s", song_titles[song_select]);
+			display_write("Bop It To Play", DISPLAY_LINE_0);
+		    display_write(display_title, DISPLAY_LINE_1);
+
 			break;
 		} 
 		case PLAY: {
@@ -384,6 +516,10 @@ static void buttons_init(void) {
   	nrf_gpio_pin_set(BopIt_OUTPUT);
   	nrf_gpio_cfg_output(BopIt_OUTPUT);
     nrf_gpio_pin_write(BopIt_OUTPUT, 0);
+
+  	nrf_gpio_pin_set(BopIt_OUTPUT2);
+  	nrf_gpio_cfg_output(BopIt_OUTPUT2);
+    nrf_gpio_pin_write(BopIt_OUTPUT2, 0);
 
     // set the config for the buttons
   	nrf_gpio_cfg_input(BopIt_BUTTON0, NRF_GPIO_PIN_NOPULL);
@@ -469,8 +605,13 @@ int main(void) {
 
     
 
-    display_write("BOP IT REV.DEMO", DISPLAY_LINE_0);
+    display_write("BOP IT REV.", DISPLAY_LINE_0);
     display_write("PLAY? ->", DISPLAY_LINE_1);
+
+    nrf_delay_ms(1000); 
+
+	display_write("Bop It To Play", DISPLAY_LINE_0);
+	display_write("SUGAR", DISPLAY_LINE_1);
 
     onbeat = 1;
     beat_passed[0] = 0;
