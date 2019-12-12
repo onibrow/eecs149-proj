@@ -49,6 +49,11 @@ uint32_t game_start_time;
 
 char test_reading_buffer	[BUFFER_SIZE][3]; 
 
+// song lengths 
+uint8_t timeouts[3] = {
+	240000, 100, 100
+};
+
 
 uint8_t beatmap 			[BEATMAP_SIZE] = {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -261,26 +266,18 @@ uint8_t beatmap2 			[BEATMAP_SIZE] = {
 4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0
 };
 
-
-// uint8_t(* beatmaps)[BEATMAP_SIZE];
-// beatmaps[0] = beatmap;
-// beatmaps[1] = beatmap1;
-// beatmaps[2] = beatmap2;
 uint8_t * beatmap_list[3] = { beatmap, beatmap1, beatmap2 };
 uint8_t * beatmap_to_play;
 
-
-
-// consider merging these to buckler.h 
-
-#define add(x,y) x##y
 #define BopIt_BUTTON0 	 	NRF_GPIO_PIN_MAP(0, 11)
 #define BopIt_BUTTON1 		NRF_GPIO_PIN_MAP(0, 12)
 #define BopIt_BUTTON2 	 	NRF_GPIO_PIN_MAP(0, 13)
 
 #define BopIt_OUTPUT		NRF_GPIO_PIN_MAP(0, 14)
-#define BopIt_OUTPUT2		NRF_GPIO_PIN_MAP(0, 10)
+#define BopIt_OUTPUT2		NRF_GPIO_PIN_MAP(0, 19)
 
+#define LED_GREEN			NRF_GPIO_PIN_MAP(0, 20)
+#define LED_RED				NRF_GPIO_PIN_MAP(0, 22)
 
 #define SONG_LENGTH_MS		APP_TIMER_TICKS(240000)
 
@@ -291,7 +288,7 @@ typedef enum {
 } states_t;
 
 states_t game;
-// readings 
+
 uint8_t btn[3];
 
 uint8_t onbeat;
@@ -357,11 +354,6 @@ static void bpm_read_callback(void * p_context){
     for (int i = 0; i < 3; i++) {
     	if (((beatmap[buffer_idx] >> (2-i)) % 2) == 1 && onbeat == 0) {
     		push_next_light(i, bop_it_colors[i]);
-    		// if (btn[i] == beatmap[buffer_idx][i]) {
-		    // 	hit_good = true; 
-		    // 	score += 1;
-		    // 	printf("btn %d hit \n", i);
-		    // }
     	} else {
     		push_next_light(i, (rgb_color_t) DARK);
     	}
@@ -384,8 +376,11 @@ static void bpm_read_callback(void * p_context){
 
     	hit_good = ((last_on && (btn[i] == 1)) || hit_good);
 
-    	// printf("hit_good: %d\n", hit_good);
     }
+
+	nrf_gpio_pin_write(LED_GREEN, 0);
+	nrf_gpio_pin_write(LED_RED, 0);
+
     printf("BEAT_PASSED: Strip %d    |     %d    |    %d\n", beat_passed[0], beat_passed[1], beat_passed[2]);
     // printf("LAST LED ON: %d\n", hit_good);
     if (hit_good) {
@@ -394,6 +389,8 @@ static void bpm_read_callback(void * p_context){
         display_write("H I T !", DISPLAY_LINE_0);
         beat_passed[which_hit] = 3;
         printf("H I T !\n");
+		nrf_gpio_pin_write(LED_GREEN, 1);
+
     } else if (beat_passed[0] == 2 || beat_passed[1] == 2 || beat_passed[2] == 2){
     	printf("MISSED...\n");
     	display_write("MISSED...", DISPLAY_LINE_0);
@@ -402,6 +399,8 @@ static void bpm_read_callback(void * p_context){
     	beat_passed[0] %= 2;
     	beat_passed[1] %= 2;
     	beat_passed[2] %= 2;
+
+		nrf_gpio_pin_write(LED_RED, 1);
     } else {
         display_write("~~~", DISPLAY_LINE_0);
         display_write("", DISPLAY_LINE_1);
@@ -520,6 +519,14 @@ static void buttons_init(void) {
   	nrf_gpio_pin_set(BopIt_OUTPUT2);
   	nrf_gpio_cfg_output(BopIt_OUTPUT2);
     nrf_gpio_pin_write(BopIt_OUTPUT2, 0);
+
+  	nrf_gpio_pin_set(LED_GREEN);
+  	nrf_gpio_cfg_output(LED_GREEN);
+    nrf_gpio_pin_write(LED_GREEN, 0);
+
+  	nrf_gpio_pin_set(LED_RED);
+  	nrf_gpio_cfg_output(LED_RED);
+    nrf_gpio_pin_write(LED_RED, 0);
 
     // set the config for the buttons
   	nrf_gpio_cfg_input(BopIt_BUTTON0, NRF_GPIO_PIN_NOPULL);
