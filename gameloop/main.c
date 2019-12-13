@@ -49,11 +49,6 @@ uint32_t game_start_time;
 
 char test_reading_buffer	[BUFFER_SIZE][3]; 
 
-// song lengths 
-uint8_t timeouts[3] = {
-	240000, 100, 100
-};
-
 
 uint8_t beatmap 			[BEATMAP_SIZE] = {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -196,7 +191,6 @@ uint8_t beatmap1 			[BEATMAP_SIZE] = {
 };
 
 
-
 uint8_t beatmap2 			[BEATMAP_SIZE] = {
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -266,6 +260,8 @@ uint8_t beatmap2 			[BEATMAP_SIZE] = {
 4, 4, 0, 4, 0, 0, 4, 0, 2, 2, 0, 2, 0, 2, 4, 0
 };
 
+// song lengths 
+uint8_t   timeouts[3] = { 240000, 30000, 120000 };
 uint8_t * beatmap_list[3] = { beatmap, beatmap1, beatmap2 };
 uint8_t * beatmap_to_play;
 
@@ -497,9 +493,6 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 			break;
 		} 
 		case PLAY: {
-			// printf("button interrupt getting called ... \n");
-			// have to check individual inputs 
-			// could be a timer, sync issue later. maybe better to put in callback 
 			for (int i = 0; i < 3; i++) {
 				btn[i] = app_button_is_pushed(i) || btn[i] ? 1 : 0;
 			}
@@ -670,6 +663,7 @@ int main(void) {
 			    buffer_idx = 0;
 			    score = 0;
 			    total_beats = 0;
+			    song_select = 0;
 			    game = NOPLAY;
 			    break;
 			}
