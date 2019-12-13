@@ -486,7 +486,7 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 			}
 
 			char display_title[16];
-			snprintf(display_title, 16, "%s", song_titles[song_select]);
+			snprintf(display_title, 16, "<- %s ->", song_titles[song_select]);
 			display_write("Bop It To Play", DISPLAY_LINE_0);
 		    display_write(display_title, DISPLAY_LINE_1);
 			break;
@@ -606,7 +606,7 @@ int main(void) {
     nrf_delay_ms(1000); 
 
 	display_write("Bop It To Play", DISPLAY_LINE_0);
-	display_write("SUGAR", DISPLAY_LINE_1);
+	display_write("<- SUGAR ->", DISPLAY_LINE_1);
 
     onbeat = 1;
     beat_passed[0] = 0;
