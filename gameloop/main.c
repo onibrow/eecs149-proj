@@ -261,7 +261,8 @@ uint8_t beatmap2 			[BEATMAP_SIZE] = {
 };
 
 // song lengths 
-uint8_t   timeouts[3] = { 240000, 30000, 120000 };
+uint32_t timeout;
+uint32_t   timeouts[3] = { 240000, 30000, 120000 };
 uint8_t * beatmap_list[3] = { beatmap, beatmap1, beatmap2 };
 uint8_t * beatmap_to_play;
 
@@ -441,19 +442,20 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 
 			if (btn[1] == 1) {
 				beatmap_to_play = beatmap_list[song_select];
-				// printf("beat map to play addr: %p", beatmap_to_play);
 	    		game = PLAY;
-
 
 	    		if (song_select == 0) {
 			        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
 			        nrf_gpio_pin_write(BopIt_OUTPUT2, 0);
+			        timeout = timeouts[0];
 	    		} else if (song_select == 1) {
 			        nrf_gpio_pin_write(BopIt_OUTPUT, 0);
 			        nrf_gpio_pin_write(BopIt_OUTPUT2, 1);
+			        timeout = timeouts[1];
 	    		} else if (song_select == 2) {
 			        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
 			        nrf_gpio_pin_write(BopIt_OUTPUT2, 1);
+			        timeout = timeouts[2];
 	    		}
 
 		        nrf_delay_ms(250); 
@@ -463,9 +465,7 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 
 		    	game = PLAY;
 				bpm_timer_init();
-
 				game_start_time = app_timer_cnt_get();
-
 				break;
 			}
 
@@ -489,7 +489,6 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 			snprintf(display_title, 16, "%s", song_titles[song_select]);
 			display_write("Bop It To Play", DISPLAY_LINE_0);
 		    display_write(display_title, DISPLAY_LINE_1);
-
 			break;
 		} 
 		case PLAY: {
@@ -499,8 +498,6 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 			break;
 		}
 	}
-	
-	// printf("button pressed\n\n");
 }
 
 static void buttons_init(void) {
@@ -535,9 +532,7 @@ static void buttons_init(void) {
 
 	error_code = app_button_init(BUTTONS, 3, 50);
     APP_ERROR_CHECK(error_code);
-
 	app_button_enable();
-
   	printf("Bop It Input Buttons Initialized \n");
 }
 
@@ -548,7 +543,7 @@ void timer_init(void) {
     nrf_drv_clock_lfclk_request(NULL);
 
     // initialize app timer 
-	error_code = app_timer_init(); // queue size and something else, chose arbitrarilly now 
+	error_code = app_timer_init(); 
     APP_ERROR_CHECK(error_code);
     printf("Timer initialized!\n");
 }
@@ -559,7 +554,7 @@ void bpm_timer_init(void) {
     error_code = app_timer_create(&BPM240, APP_TIMER_MODE_REPEATED, bpm_read_callback);
     APP_ERROR_CHECK(error_code);
 
-    // fires in every 250 ms
+    // fires in every 250/4 ms
     error_code = app_timer_start(BPM240, APP_TIMER_TICKS(62.5), NULL);
     APP_ERROR_CHECK(error_code);
 
@@ -637,7 +632,7 @@ int main(void) {
 				// printf("difference: %d\n\n", app_timer_cnt_diff_compute(cur_time, game_start_time));
 				time_diff = app_timer_cnt_diff_compute(cur_time, game_start_time);
 
-				if (time_diff >= SONG_LENGTH_MS) {
+				if (time_diff >= APP_TIMER_TICKS(timeout)) {
 
 					APP_ERROR_CHECK(app_timer_stop(BPM240));
 					game = GAMEOVER;
