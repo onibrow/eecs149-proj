@@ -52,7 +52,7 @@ char test_reading_buffer	[BUFFER_SIZE][3];
 
 
 uint8_t beatmap 			[898] = {
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0, 2, 0, 4, 0,
@@ -124,7 +124,7 @@ uint8_t beatmap 			[898] = {
 
 
 uint8_t beatmap1 			[410] = {
-0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,
+0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,
 
 1,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0, 4,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0,
 4,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0,
@@ -142,7 +142,7 @@ uint8_t beatmap1 			[410] = {
 
 
 uint8_t beatmap2 			[808] = {
-0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,
+0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,
 3,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0, 6,0,0,0,0,0,0,0, 2,0,0,0,0,0,0,0,
 3,0,4,2,2,4,0,0, 2,0,4,2,2,4,0,0, 6,0,4,2,2,4,0,0, 2,0,4,2,2,4,2,2,
 6,6,6,6,6,6,2,2, 6,6,6,6,6,6,4,4, 6,6,6,6,6,6,2,2, 3,3,3,3,3,3,2,2,
@@ -375,15 +375,17 @@ static void buttons_interrupt_handler(uint8_t btn_id) {
 			        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
 			        nrf_gpio_pin_write(BopIt_OUTPUT2, 0);
 			        timeout = timeouts[0];
+			        nrf_delay_ms(150);
 	    		} else if (song_select == 1) {
 			        nrf_gpio_pin_write(BopIt_OUTPUT, 0);
 			        nrf_gpio_pin_write(BopIt_OUTPUT2, 1);
 			        timeout = timeouts[1];
+			        nrf_delay_ms(60);
 	    		} else if (song_select == 2) {
 			        nrf_gpio_pin_write(BopIt_OUTPUT, 1);
 			        nrf_gpio_pin_write(BopIt_OUTPUT2, 1);
 			        timeout = timeouts[2];
-			        nrf_delay_ms(75);
+			        nrf_delay_ms(158);
 	    		}
 
 		        nrf_delay_ms(250); 
@@ -529,9 +531,9 @@ int main(void) {
     
 
     display_write("BOP IT REV.", DISPLAY_LINE_0);
-    display_write("PLAY? ->", DISPLAY_LINE_1);
+    display_write("LOADING...", DISPLAY_LINE_1);
 
-    nrf_delay_ms(1000); 
+    nrf_delay_ms(5000); 
 
 	display_write("Bop It To Play", DISPLAY_LINE_0);
 	display_write("<    SUGAR    >", DISPLAY_LINE_1);
