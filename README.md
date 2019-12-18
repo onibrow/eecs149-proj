@@ -2,6 +2,9 @@
 
 Sanga Park, Seiya Ono, Ryan Tsang, Jehan Yang
 
+<img src="final_project.jpg" align="center" style="height:150px">
+
+------
 Setting up a lab computer:
 
 ```bash
