@@ -4,6 +4,8 @@ Sanga Park, Seiya Ono, Ryan Tsang, Jehan Yang
 
 <img src="final_project.jpg" width="400">
 
+[Video](https://www.youtube.com/watch?v=G22i39vs388&feature=youtu.be)
+
 ------
 Setting up a lab computer:
 
