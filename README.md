@@ -2,7 +2,7 @@
 
 Sanga Park, Seiya Ono, Ryan Tsang, Jehan Yang
 
-<img src="final_project.jpg" align="center" style="height:150px">
+<img src="final_project.jpg" width="400">
 
 ------
 Setting up a lab computer:
