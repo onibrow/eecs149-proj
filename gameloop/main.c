@@ -280,7 +280,7 @@ static void bpm_read_callback(void * p_context){
     	}
     	last_on = check_hit_zone(i);
 
-    	show(i);
+    	// show(i);
 
     	if (last_on) {
     		which_hit[i] = 1;
@@ -308,13 +308,14 @@ static void bpm_read_callback(void * p_context){
         display_write("H I T !", DISPLAY_LINE_0);
         for (uint8_t i = 0; i < 3; i++) {
         	if (which_hit[i] && btn[i] && beat_passed[i] == 1) {
+        		green_backlight(i);
         		score++;
         		beat_passed[i] = 3;
         	}
         }
 
         printf("H I T !\n");
-		nrf_gpio_pin_write(LED_GREEN, 1);
+		// nrf_gpio_pin_write(LED_GREEN, 1);
 
     } else if (beat_passed[0] == 2 || beat_passed[1] == 2 || beat_passed[2] == 2){
     	printf("MISSED...\n");
@@ -324,12 +325,16 @@ static void bpm_read_callback(void * p_context){
     	beat_passed[1] %= 2;
     	beat_passed[2] %= 2;
 
-		nrf_gpio_pin_write(LED_RED, 1);
+		// nrf_gpio_pin_write(LED_RED, 1);
     } else {
         display_write("~~~", DISPLAY_LINE_0);
         display_write("", DISPLAY_LINE_1);
         printf("~~~\n\n");
     }
+
+    show(0);
+    show(1);
+    show(2);
 
     if (onbeat == 0) {
 	    buffer_idx ++;

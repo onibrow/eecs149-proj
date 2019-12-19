@@ -167,13 +167,14 @@ void setLED(int8_t id, int pos, rgb_color_t color) {
  * @param 	id 		strip id to light
  */
 void green_backlight(int8_t id) {
-	for (int i = 0; i < NUM_STRIPS; i++) {
-		if (strips[id][i].r != 0 || strips[id][i].g != 0 || strips[id][i].b != 0) {
-			continue;
-		} else {
-			strips[id][i] = (rgb_color_t) {.r = 0, .g = 50, .b = 0};
-		}
-	}
+	// for (int i = 0; i < NUM_STRIPS; i++) {
+	// 	if (strips[id][i].r != 0 || strips[id][i].g != 0 || strips[id][i].b != 0) {
+	// 		continue;
+	// 	} else {
+	// 		strips[id][i] = (rgb_color_t) {.r = 0, .g = 50, .b = 0};
+	// 	}
+	// }
+	strips[id][last[id]] = (rgb_color_t) {.r = 0, .g = 255, .b = 0};
 }
 
 /*
@@ -183,13 +184,14 @@ void green_backlight(int8_t id) {
  * @param 	id 		strip id to light
  */
 void red_backlight(int8_t id) {
-	for (int i = 0; i < NUM_STRIPS; i++) {
-		if (strips[id][i].r != 0 || strips[id][i].g != 0 || strips[id][i].b != 0) {
-			continue;
-		} else {
-			strips[id][i] = (rgb_color_t) {.r = 50, .g = 0, .b = 0};
-		}
-	}
+	// for (int i = 0; i < NUM_STRIPS; i++) {
+	// 	if (strips[id][i].r != 0 || strips[id][i].g != 0 || strips[id][i].b != 0) {
+	// 		continue;
+	// 	} else {
+	// 		strips[id][i] = (rgb_color_t) {.r = 50, .g = 0, .b = 0};
+	// 	}
+	// }
+	// strips[id][0] = (rgb_color_t) {.r = 50, .g = 0, .b = 0};
 }
 
 /*
